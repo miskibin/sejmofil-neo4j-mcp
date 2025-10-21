@@ -1,0 +1,482 @@
+{
+  "labels": [
+    "Person",
+    "Club",
+    "Committee",
+    "Print",
+    "Proceeding",
+    "Statement",
+    "Organization",
+    "Topic",
+    "Process",
+    "Stage",
+    "Voting",
+    "VotingOption",
+    "Ministry",
+    "SubCommittee",
+    "ActKeyword",
+    "Act",
+    "Test"
+  ],
+  "relationshipTypes": [
+    "BELONGS_TO",
+    "REFERENCES",
+    "SAID",
+    "COVERED",
+    "AUTHORED",
+    "REPRESENTS",
+    "COMMENTS",
+    "MENTIONED",
+    "REFERS_TO",
+    "HAS",
+    "HAS_CHILD",
+    "PERFORMED_BY",
+    "SUBJECT",
+    "IS_SOURCE_OF",
+    "DISCUSSES",
+    "CONTAINS",
+    "HAS_KEYWORD",
+    "RELATED_TO"
+  ],
+  "indexes": [
+    {
+      "id": 3,
+      "name": "act_ELI",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Act"
+      ],
+      "properties": [
+        "ELI"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "act_ELI"
+    },
+    {
+      "id": 9,
+      "name": "actkeyword_name",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "ActKeyword"
+      ],
+      "properties": [
+        "name"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "actkeyword_name"
+    },
+    {
+      "id": 24,
+      "name": "clubIdIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Club"
+      ],
+      "properties": [
+        "id"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 5,
+      "name": "clubNameIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Club"
+      ],
+      "properties": [
+        "name"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 35,
+      "name": "club_id",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Club"
+      ],
+      "properties": [
+        "id"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "club_id"
+    },
+    {
+      "id": 6,
+      "name": "committeeNameIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Committee"
+      ],
+      "properties": [
+        "name"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 36,
+      "name": "committee_code",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Committee"
+      ],
+      "properties": [
+        "code"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "committee_code"
+    },
+    {
+      "id": 1,
+      "name": "index_343aff4e",
+      "populationPercent": 100.0,
+      "type": "LOOKUP",
+      "entityType": "NODE",
+      "labelsOrTypes": null,
+      "properties": null,
+      "indexProvider": "token-lookup-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 2,
+      "name": "index_f7700477",
+      "populationPercent": 100.0,
+      "type": "LOOKUP",
+      "entityType": "RELATIONSHIP",
+      "labelsOrTypes": null,
+      "properties": null,
+      "indexProvider": "token-lookup-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 25,
+      "name": "ministryEmbeddingIndex",
+      "populationPercent": 100.0,
+      "type": "VECTOR",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Ministry"
+      ],
+      "properties": [
+        "embedding"
+      ],
+      "indexProvider": "vector-2.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 21,
+      "name": "organizationEmbeddingIndex",
+      "populationPercent": 100.0,
+      "type": "VECTOR",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Organization"
+      ],
+      "properties": [
+        "embedding"
+      ],
+      "indexProvider": "vector-2.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 19,
+      "name": "personNameIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Person"
+      ],
+      "properties": [
+        "firstLastName"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 17,
+      "name": "person_id",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Person"
+      ],
+      "properties": [
+        "id"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "person_id"
+    },
+    {
+      "id": 12,
+      "name": "person_names",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Person"
+      ],
+      "properties": [
+        "firstLastName",
+        "accusativeName",
+        "genitiveName"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 29,
+      "name": "polishIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Test"
+      ],
+      "properties": [
+        "text"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 22,
+      "name": "printEmbeddingIndex",
+      "populationPercent": 100.0,
+      "type": "VECTOR",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Print"
+      ],
+      "properties": [
+        "embedding"
+      ],
+      "indexProvider": "vector-2.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 11,
+      "name": "print_content",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Print"
+      ],
+      "properties": [
+        "title",
+        "summary"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 33,
+      "name": "print_number",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Print"
+      ],
+      "properties": [
+        "number"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "print_number"
+    },
+    {
+      "id": 20,
+      "name": "processTitleIndex",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Process"
+      ],
+      "properties": [
+        "title"
+      ],
+      "indexProvider": "fulltext-1.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 16,
+      "name": "process_number",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Process"
+      ],
+      "properties": [
+        "number"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "process_number"
+    },
+    {
+      "id": 23,
+      "name": "topicEmbeddingIndex",
+      "populationPercent": 100.0,
+      "type": "VECTOR",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Topic"
+      ],
+      "properties": [
+        "embedding"
+      ],
+      "indexProvider": "vector-2.0",
+      "owningConstraint": null
+    },
+    {
+      "id": 28,
+      "name": "topic_name",
+      "populationPercent": 100.0,
+      "type": "RANGE",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Topic"
+      ],
+      "properties": [
+        "name"
+      ],
+      "indexProvider": "range-1.0",
+      "owningConstraint": "topic_name"
+    }
+  ],
+  "constraints": [
+    {
+      "id": 4,
+      "name": "act_ELI",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Act"
+      ],
+      "properties": [
+        "ELI"
+      ],
+      "ownedIndex": "act_ELI",
+      "propertyType": null
+    },
+    {
+      "id": 10,
+      "name": "actkeyword_name",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "ActKeyword"
+      ],
+      "properties": [
+        "name"
+      ],
+      "ownedIndex": "actkeyword_name",
+      "propertyType": null
+    },
+    {
+      "id": 8,
+      "name": "club_id",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Club"
+      ],
+      "properties": [
+        "id"
+      ],
+      "ownedIndex": "club_id",
+      "propertyType": null
+    },
+    {
+      "id": 7,
+      "name": "committee_code",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Committee"
+      ],
+      "properties": [
+        "code"
+      ],
+      "ownedIndex": "committee_code",
+      "propertyType": null
+    },
+    {
+      "id": 15,
+      "name": "person_id",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Person"
+      ],
+      "properties": [
+        "id"
+      ],
+      "ownedIndex": "person_id",
+      "propertyType": null
+    },
+    {
+      "id": 31,
+      "name": "print_number",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Print"
+      ],
+      "properties": [
+        "number"
+      ],
+      "ownedIndex": "print_number",
+      "propertyType": null
+    },
+    {
+      "id": 27,
+      "name": "process_number",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Process"
+      ],
+      "properties": [
+        "number"
+      ],
+      "ownedIndex": "process_number",
+      "propertyType": null
+    },
+    {
+      "id": 13,
+      "name": "topic_name",
+      "type": "UNIQUENESS",
+      "entityType": "NODE",
+      "labelsOrTypes": [
+        "Topic"
+      ],
+      "properties": [
+        "name"
+      ],
+      "ownedIndex": "topic_name",
+      "propertyType": null
+    }
+  ]
+}
