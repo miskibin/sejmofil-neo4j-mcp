@@ -11,22 +11,19 @@ from config import settings
 
 def validate_api_key():
     """Validate API key if authorization is enabled"""
-    valid_keys = settings.get_valid_api_keys()
-    
-    # If no API keys configured, allow access
-    if not valid_keys:
-        logger.warning("No API keys configured - authorization disabled")
+    # If no API key configured, allow access
+    if not settings.API_KEY:
+        logger.warning("No API key configured - authorization disabled")
         return True
     
-    # Check for CLIENT_API_KEY environment variable
-    client_api_key = os.getenv('CLIENT_API_KEY')
+    # Check for API_KEY environment variable from client
+    client_api_key = os.getenv('API_KEY')
     
     if not client_api_key:
-        logger.error("Authorization required: CLIENT_API_KEY environment variable not set")
-        logger.error("Please set CLIENT_API_KEY environment variable with a valid API key")
+        logger.error("Authorization required: API_KEY environment variable not set")
         return False
     
-    if not settings.is_api_key_valid(client_api_key):
+    if client_api_key != settings.API_KEY:
         logger.error("Authorization failed: Invalid API key")
         return False
     

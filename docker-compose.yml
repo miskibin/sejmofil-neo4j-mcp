@@ -16,12 +16,8 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL:-text-embedding-3-small}
       
-      # API Key Authorization
-      # Comma-separated list of valid API keys
-      API_KEYS: ${API_KEYS}
-      
-      # Client API key (one of the keys from API_KEYS)
-      CLIENT_API_KEY: ${CLIENT_API_KEY}
+      # API Key Authorization (optional)
+      API_KEY: ${API_KEY}
     volumes:
       # Mount logs directory for persistence
       - ./logs:/app/logs

@@ -10,8 +10,7 @@ cp .env.example .env
 
 # Edit .env and set your credentials:
 # - NEO4J_PASSWORD (required)
-# - API_KEYS (recommended - comma-separated list, e.g., "key1,key2,key3")
-# - CLIENT_API_KEY (required if API_KEYS is set)
+# - API_KEY (recommended - single shared key)
 # - OPENAI_API_KEY (optional)
 ```
 
@@ -49,32 +48,29 @@ cp .env.example .env
 ### 3. Run Server
 
 ```bash
-# Set your API key (if API_KEYS is configured in .env)
-export CLIENT_API_KEY=your-key
+# Set your API key (if API_KEY is configured in .env)
+export API_KEY=your-key
 
 # Run the server
 uv run python -m sejmofil_mcp
 ```
 
-## API Key Setup (3 Users)
+## API Key Setup
 
-Generate secure keys:
+Generate a secure key:
 
 ```bash
-# Generate 3 random keys
-openssl rand -hex 16  # → user1 key
-openssl rand -hex 16  # → user2 key  
-openssl rand -hex 16  # → user3 key
+# Generate a random key
+openssl rand -hex 16
 ```
 
 Add to `.env`:
 
 ```env
-API_KEYS=<user1-key>,<user2-key>,<user3-key>
-CLIENT_API_KEY=<user1-key>
+API_KEY=<your-generated-key>
 ```
 
-Each user should use their own `CLIENT_API_KEY` value.
+All users share the same `API_KEY` value.
 
 ## Integration with Claude Desktop
 
@@ -88,8 +84,7 @@ Add to `~/.config/claude/config.json` (or `%APPDATA%\Claude\config.json` on Wind
       "args": [
         "run", "-i", "--rm",
         "-e", "NEO4J_PASSWORD=your_password",
-        "-e", "API_KEYS=key1,key2,key3",
-        "-e", "CLIENT_API_KEY=your_key",
+        "-e", "API_KEY=your_key",
         "sejmofil-neo4j-mcp:latest"
       ]
     }
@@ -99,7 +94,7 @@ Add to `~/.config/claude/config.json` (or `%APPDATA%\Claude\config.json` on Wind
 
 ## Troubleshooting
 
-**"Authorization failed"**: Check that `CLIENT_API_KEY` matches one of the keys in `API_KEYS`
+**"Authorization failed"**: Check that `API_KEY` environment variable matches the configured key
 
 **"Connection failed"**: Verify `NEO4J_HOST`, `NEO4J_USER`, and `NEO4J_PASSWORD` are correct
 
@@ -110,7 +105,7 @@ Add to `~/.config/claude/config.json` (or `%APPDATA%\Claude\config.json` on Wind
 ✅ **No security vulnerabilities found** (verified with CodeQL)
 
 Key security features:
-- API key authentication for access control
+- Simple API key authentication for access control
 - TLS encryption for Neo4j connections (bolt+s://)
 - Environment-based configuration (no hardcoded secrets)
 - Comprehensive security best practices documented in DOCKER.md
