@@ -12,6 +12,8 @@ Model Context Protocol server for querying Polish parliamentary data from Neo4j 
 
 ## Installation
 
+### Option 1: Using uv (Recommended for Development)
+
 ```bash
 # Install dependencies using uv
 uv sync
@@ -20,9 +22,19 @@ uv sync
 pip install -e .
 ```
 
+### Option 2: Using Docker (Recommended for Production)
+
+```bash
+# Build the Docker image
+docker build -t sejmofil-neo4j-mcp .
+
+# Or use docker-compose
+docker-compose build
+```
+
 ## Configuration
 
-Create a `.env` file:
+Create a `.env` file (copy from `.env.example`):
 
 ```env
 NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687
@@ -30,9 +42,57 @@ NEO4J_USER=neo4j
 NEO4J_PASSWORD=your_password
 OPENAI_API_KEY=your_openai_key  # Optional, for semantic search
 EMBEDDINGS_MODEL=text-embedding-3-small
+
+# API Key Authorization (optional but recommended)
+# Comma-separated list of valid API keys
+API_KEYS=user1-secret-key,user2-secret-key,user3-secret-key
+
+# When running the server, set this to one of the API keys from API_KEYS
+CLIENT_API_KEY=user1-secret-key
+```
+
+### API Key Authorization
+
+The server supports simple but effective API key authorization:
+
+- **API_KEYS**: Comma-separated list of valid API keys (one for each user)
+- **CLIENT_API_KEY**: The API key used by the client to authenticate
+
+If `API_KEYS` is not set, authorization is disabled (not recommended for production).
+
+**Example:**
+```bash
+# Set up 3 API keys for 3 users
+API_KEYS=abc123,def456,ghi789
+
+# User 1 connects with:
+CLIENT_API_KEY=abc123
+
+# User 2 connects with:
+CLIENT_API_KEY=def456
+
+# User 3 connects with:
+CLIENT_API_KEY=ghi789
 ```
 
 ## Running the Server
+
+### Using Docker (Recommended for Production)
+
+```bash
+# Using docker-compose (easiest)
+docker-compose up
+
+# Or run the container directly
+docker run -it --rm \
+  -e NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687 \
+  -e NEO4J_USER=neo4j \
+  -e NEO4J_PASSWORD=your_password \
+  -e API_KEYS=key1,key2,key3 \
+  -e CLIENT_API_KEY=key1 \
+  -v $(pwd)/logs:/app/logs \
+  sejmofil-neo4j-mcp:latest
+```
 
 ### Using MCP Inspector (Recommended for testing)
 
@@ -238,6 +298,8 @@ Logs are written to:
 
 Add to Claude Desktop config:
 
+### Without Docker
+
 ```json
 {
   "mcpServers": {
@@ -250,6 +312,37 @@ Add to Claude Desktop config:
         "python",
         "-m",
         "sejmofil_mcp"
+      ],
+      "env": {
+        "CLIENT_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### With Docker
+
+```json
+{
+  "mcpServers": {
+    "sejmofil": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687",
+        "-e",
+        "NEO4J_USER=neo4j",
+        "-e",
+        "NEO4J_PASSWORD=your_password",
+        "-e",
+        "API_KEYS=key1,key2,key3",
+        "-e",
+        "CLIENT_API_KEY=your-api-key",
+        "sejmofil-neo4j-mcp:latest"
       ]
     }
   }

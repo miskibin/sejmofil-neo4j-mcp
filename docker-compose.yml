@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  sejmofil-mcp:
+    build: .
+    image: sejmofil-neo4j-mcp:latest
+    container_name: sejmofil-mcp-server
+    restart: unless-stopped
+    environment:
+      # Neo4j Configuration
+      NEO4J_HOST: ${NEO4J_HOST:-bolt+s://neo.msulawiak.pl:7687}
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      
+      # OpenAI Configuration (optional for semantic search)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL:-text-embedding-3-small}
+      
+      # API Key Authorization
+      # Comma-separated list of valid API keys
+      API_KEYS: ${API_KEYS}
+      
+      # Client API key (one of the keys from API_KEYS)
+      CLIENT_API_KEY: ${CLIENT_API_KEY}
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+    # MCP servers communicate via stdio, so we don't expose ports
+    stdin_open: true
+    tty: true
