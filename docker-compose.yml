@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  sejmofil-mcp:
+    build: .
+    image: sejmofil-neo4j-mcp:latest
+    container_name: sejmofil-mcp-server
+    restart: unless-stopped
+    environment:
+      # Neo4j Configuration
+      NEO4J_HOST: ${NEO4J_HOST:-bolt+s://neo.msulawiak.pl:7687}
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      
+      # OpenAI Configuration (optional for semantic search)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL:-text-embedding-3-small}
+      
+      # API Key Authorization (optional)
+      API_KEY: ${API_KEY}
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+    ports:
+      # Expose port 8000 for SSE transport
+      - "8000:8000"
+    stdin_open: true
+    tty: true

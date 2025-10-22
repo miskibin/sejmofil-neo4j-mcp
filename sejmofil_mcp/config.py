@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     EMBEDDINGS_MODEL: str = "text-embedding-3-small"
     
+    # API Key Authorization
+    # Simple API key for authorization. If not set, authorization is disabled
+    API_KEY: Optional[str] = None
+    
     # Query limits
     DEFAULT_LIMIT: int = 10
     MAX_LIMIT: int = 50

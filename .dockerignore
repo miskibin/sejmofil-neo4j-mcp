@@ -1,0 +1,40 @@
+# Git files
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.py[oc]
+*.egg-info
+.pytest_cache
+
+# Virtual environments
+.venv
+.env
+venv
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+build/
+dist/
+wheels/
+
+# Test files
+test_*.py
+debug_*.py
+
+# Documentation
+README.md
+docs/
+
+# Scripts
+scripts/
