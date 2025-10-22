@@ -32,6 +32,8 @@ docker build -t sejmofil-neo4j-mcp .
 docker-compose build
 ```
 
+**See [DOCKER.md](DOCKER.md) for detailed Docker usage instructions.**
+
 ## Configuration
 
 Create a `.env` file (copy from `.env.example`):
