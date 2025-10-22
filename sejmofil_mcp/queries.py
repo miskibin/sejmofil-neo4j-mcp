@@ -14,27 +14,29 @@ from sejmofil_mcp.config import settings
 class QueryService:
     """Service for executing Neo4j queries"""
     
-    def search_active_prints_by_topic(
+    def search_prints_by_query(
         self, 
-        topic: str, 
-        limit: int = 10
+        query_text: str, 
+        limit: int = 10,
+        status_filter: Optional[str] = None
     ) -> List[PrintShort]:
         """
-        Search for active (currently processed) prints on a topic using semantic search
+        Search for prints using semantic or fulltext search
         
         Args:
-            topic: Topic to search for (will be converted to embedding)
+            query_text: Text query to search for
             limit: Maximum number of results
+            status_filter: Optional filter - 'active', 'finished', or None for all
             
         Returns:
-            List of active prints matching the topic
+            List of prints matching the query
         """
         if not embeddings_service.is_available():
             logger.warning("Embeddings service not available, falling back to fulltext search")
-            return self._search_prints_fulltext(topic, limit, active_only=True)
+            return self._search_prints_fulltext(query_text, limit, status_filter)
         
-        # Generate embedding for the topic
-        embedding = embeddings_service.generate_embedding(topic)
+        # Generate embedding for the query
+        embedding = embeddings_service.generate_embedding(query_text)
         
         query = """
         // Vector search on prints
@@ -42,7 +44,7 @@ class QueryService:
         YIELD node as print, score
         WHERE print.summary IS NOT NULL
         
-        // Get process and stages - use correct relationship
+        // Get process and stages
         OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
         OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
         
@@ -51,17 +53,22 @@ class QueryService:
         
         // Get latest stage per print
         WITH print, score, process, COLLECT(stage)[0] as latestStage
+        """
         
-        // Filter active only - stages with terminal names or no process at all
-        WHERE process IS NULL
-           OR latestStage IS NULL 
-           OR (latestStage.stageName IS NOT NULL 
-               AND NOT latestStage.stageName IN [
-                 'Publikacja w Dzienniku Ustaw',
-                 'Odrzucenie projektu ustawy',
-                 'Wycofanie projektu'
-               ])
+        # Add status filter if specified
+        if status_filter == 'active':
+            query += """
+            WHERE process IS NULL
+               OR latestStage IS NULL
+               OR latestStage.type IS NULL
+               OR NOT (latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'])
+            """
+        elif status_filter == 'finished':
+            query += """
+            WHERE latestStage.type IN ['PUBLICATION', 'WITHDRAWAL']
+            """
         
+        query += """
         // Enrich with topics
         OPTIONAL MATCH (print)-[:REFERS_TO]->(topic:Topic)
         WITH print, score, latestStage, COLLECT(DISTINCT topic.name) as topics
@@ -90,7 +97,7 @@ class QueryService:
         self, 
         query_text: str, 
         limit: int = 10,
-        active_only: bool = False
+        status_filter: Optional[str] = None
     ) -> List[PrintShort]:
         """Fallback fulltext search for prints"""
         
@@ -98,30 +105,28 @@ class QueryService:
         CALL db.index.fulltext.queryNodes("print_content", $query) 
         YIELD node as print, score
         WHERE print.summary IS NOT NULL
+        
+        // Get process status
+        OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
+        OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
+        
+        WITH print, score, process, stage
+        ORDER BY stage.date DESC, stage.number DESC
+        
+        WITH print, score, process, COLLECT(stage)[0] as latestStage
         """
         
-        if active_only:
+        # Add status filter if specified
+        if status_filter == 'active':
             query += """
-            // Get process status - use OPTIONAL MATCH for prints without process
-            OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
-            OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
-            
-            WITH print, score, process, stage
-            ORDER BY stage.date DESC, stage.number DESC
-            
-            WITH print, score, process, COLLECT(stage)[0] as latestStage
             WHERE process IS NULL
-               OR latestStage IS NULL 
-               OR (latestStage.stageName IS NOT NULL 
-                   AND NOT latestStage.stageName IN [
-                     'Publikacja w Dzienniku Ustaw',
-                     'Odrzucenie projektu ustawy',
-                     'Wycofanie projektu'
-                   ])
+               OR latestStage IS NULL
+               OR latestStage.type IS NULL
+               OR NOT (latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'])
             """
-        else:
+        elif status_filter == 'finished':
             query += """
-            WITH print, score, null as latestStage
+            WHERE latestStage.type IN ['PUBLICATION', 'WITHDRAWAL']
             """
         
         query += """
@@ -262,11 +267,7 @@ class QueryService:
           process.number as processNumber,
           CASE 
             WHEN latestStage IS NULL THEN 'unknown'
-            WHEN latestStage.stageName IN [
-              'Publikacja w Dzienniku Ustaw', 
-              'Odrzucenie projektu ustawy',
-              'Wycofanie projektu'
-            ] THEN 'finished'
+            WHEN latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'] THEN 'finished'
             ELSE 'active'
           END as status,
           latestStage.stageName as currentStage,
@@ -472,7 +473,7 @@ class QueryService:
             Dictionary with results by type
         """
         # Search prints
-        print_results = self._search_prints_fulltext(query_text, limit)
+        print_results = self.search_prints_by_query(query_text, limit)
         
         # Search persons
         person_results = self.find_person_by_name(query_text)
@@ -528,21 +529,13 @@ class QueryService:
              sum(CASE 
                WHEN process IS NULL 
                     OR latestStage IS NULL 
-                    OR (latestStage.stageName IS NOT NULL 
-                        AND NOT latestStage.stageName IN [
-                          'Publikacja w Dzienniku Ustaw',
-                          'Odrzucenie projektu ustawy',
-                          'Wycofanie projektu'
-                        ])
+                    OR latestStage.type IS NULL
+                    OR NOT (latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'])
                THEN 1 
                ELSE 0
              END) as activePrints,
              sum(CASE 
-               WHEN latestStage.stageName IN [
-                 'Publikacja w Dzienniku Ustaw',
-                 'Odrzucenie projektu ustawy',
-                 'Wycofanie projektu'
-               ]
+               WHEN latestStage.type IN ['PUBLICATION', 'WITHDRAWAL']
                THEN 1 
                ELSE 0
              END) as finishedPrints
@@ -603,21 +596,13 @@ class QueryService:
              sum(CASE 
                WHEN process IS NULL 
                     OR latestStage IS NULL 
-                    OR (latestStage.stageName IS NOT NULL 
-                        AND NOT latestStage.stageName IN [
-                          'Publikacja w Dzienniku Ustaw',
-                          'Odrzucenie projektu ustawy',
-                          'Wycofanie projektu'
-                        ])
+                    OR latestStage.type IS NULL
+                    OR NOT (latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'])
                THEN 1 
                ELSE 0
              END) as activePrints,
              sum(CASE 
-               WHEN latestStage.stageName IN [
-                 'Publikacja w Dzienniku Ustaw',
-                 'Odrzucenie projektu ustawy',
-                 'Wycofanie projektu'
-               ]
+               WHEN latestStage.type IN ['PUBLICATION', 'WITHDRAWAL']
                THEN 1 
                ELSE 0
              END) as finishedPrints
@@ -655,6 +640,120 @@ class QueryService:
             return None
         
         return ClubStatistics(**results[0])
+    
+    def get_node_neighbors(
+        self, 
+        node_type: str, 
+        node_id: str,
+        limit: int = 50
+    ) -> Dict[str, Any]:
+        """
+        Get all neighboring nodes for a given node (generic exploration)
+        
+        Args:
+            node_type: Type of node (e.g., 'Person', 'Print', 'Topic', 'Process', 'Club')
+            node_id: Node identifier (depends on type - id, number, name, etc.)
+            limit: Maximum neighbors per relationship type
+            
+        Returns:
+            Dictionary with neighbor information grouped by relationship type
+        """
+        # Build query based on node type
+        if node_type == 'Person':
+            match_clause = "MATCH (n:Person {id: $nodeId})"
+        elif node_type == 'Print':
+            match_clause = "MATCH (n:Print {number: $nodeId})"
+        elif node_type == 'Topic':
+            match_clause = "MATCH (n:Topic {name: $nodeId})"
+        elif node_type == 'Process':
+            match_clause = "MATCH (n:Process {number: $nodeId})"
+        elif node_type == 'Club':
+            match_clause = "MATCH (n:Club {name: $nodeId})"
+        elif node_type == 'Committee':
+            match_clause = "MATCH (n:Committee {code: $nodeId})"
+        else:
+            # Generic fallback
+            match_clause = f"MATCH (n:{node_type}) WHERE id(n) = toInteger($nodeId)"
+        
+        query = f"""
+        {match_clause}
+        
+        // Get all relationships and neighbors
+        OPTIONAL MATCH (n)-[r]-(neighbor)
+        
+        WITH n, type(r) as relType, labels(neighbor)[0] as neighborType, 
+             COLLECT(DISTINCT neighbor) as neighbors
+        WHERE relType IS NOT NULL
+        
+        // Return grouped by relationship type
+        RETURN 
+          relType,
+          neighborType,
+          [nb in neighbors[0..$limit] | 
+            CASE labels(nb)[0]
+              WHEN 'Person' THEN {{
+                id: nb.id,
+                name: nb.firstLastName,
+                club: nb.club
+              }}
+              WHEN 'Print' THEN {{
+                number: nb.number,
+                title: nb.title
+              }}
+              WHEN 'Topic' THEN {{
+                name: nb.name,
+                description: nb.description
+              }}
+              WHEN 'Process' THEN {{
+                number: nb.number,
+                title: nb.title
+              }}
+              WHEN 'Club' THEN {{
+                name: nb.name
+              }}
+              WHEN 'Committee' THEN {{
+                code: nb.code,
+                name: nb.name
+              }}
+              WHEN 'Statement' THEN {{
+                speaker: nb.statement_speaker,
+                topic: nb.statement_official_topic
+              }}
+              WHEN 'Stage' THEN {{
+                stageName: nb.stageName,
+                date: nb.date,
+                type: nb.type
+              }}
+              ELSE {{
+                info: 'Node type: ' + labels(nb)[0]
+              }}
+            END
+          ] as neighborData,
+          size(neighbors) as totalCount
+        ORDER BY totalCount DESC
+        """
+        
+        try:
+            results = neo4j_client.execute_read_query(query, {
+                "nodeId": node_id,
+                "limit": limit
+            })
+            
+            # Group results by relationship type
+            grouped = {}
+            for r in results:
+                rel_type = r['relType']
+                if rel_type not in grouped:
+                    grouped[rel_type] = {
+                        'neighborType': r['neighborType'],
+                        'totalCount': r['totalCount'],
+                        'neighbors': r['neighborData']
+                    }
+            
+            return grouped
+        except Exception as e:
+            logger.error(f"Error getting node neighbors: {e}")
+            return {}
     
     def list_clubs(self) -> List[Club]:
         """

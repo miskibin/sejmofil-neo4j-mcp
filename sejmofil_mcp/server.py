@@ -50,20 +50,20 @@ except Exception as e:
 
 
 @mcp.tool()
-def search_active_prints_by_topic(topic: str, limit: int = 10) -> str:
+def search_prints(query: str, limit: int = 10, status: str = "all") -> str:
     """
-    Find currently processed (active) parliamentary prints on a specific topic using semantic search.
+    Search for parliamentary prints (legislative documents) by topic or keywords.
     
-    This tool searches for legislative prints (druki sejmowe) that are currently being processed
-    in the parliament and match the given topic. It uses semantic search via embeddings to find
-    relevant prints even when exact keywords don't match.
+    This tool searches for prints using semantic search (embeddings) or fulltext search.
+    It can search all prints or filter by their current status (active/finished).
     
     Args:
-        topic: Topic to search for in Polish (e.g., 'podatki', 'obrona narodowa', 'edukacja', 'zdrowie')
+        query: Search query in Polish (e.g., 'podatki', 'obrona', 'energia odnawialna')
         limit: Maximum number of results to return (default: 10, max: 50)
+        status: Filter by status - 'active' (currently processed), 'finished' (published/withdrawn), or 'all' (default: all)
     
     Returns:
-        JSON string with list of active prints including:
+        JSON string with list of prints including:
         - Print number and title
         - Summary of the print
         - Current legislative stage
@@ -71,21 +71,28 @@ def search_active_prints_by_topic(topic: str, limit: int = 10) -> str:
         - Document date
     
     Examples:
-        - "podatki" - finds tax-related prints
-        - "obrona narodowa" - finds national defense prints
-        - "energia odnawialna" - finds renewable energy prints
+        - search_prints("podatki", status="active") - finds active tax-related prints
+        - search_prints("obrona narodowa") - finds all defense prints
+        - search_prints("energia", status="finished") - finds completed energy prints
     """
     try:
         limit = min(limit, settings.MAX_LIMIT)
-        logger.info(f"Searching active prints for topic: {topic} (limit: {limit})")
         
-        results = query_service.search_active_prints_by_topic(topic, limit)
+        # Validate status parameter
+        if status not in ["all", "active", "finished"]:
+            return f"Invalid status '{status}'. Must be 'all', 'active', or 'finished'"
+        
+        status_filter = None if status == "all" else status
+        
+        logger.info(f"Searching prints for: {query} (status: {status}, limit: {limit})")
+        
+        results = query_service.search_prints_by_query(query, limit, status_filter)
         
         if not results:
-            return f"No active prints found for topic: {topic}"
+            return f"No prints found for query: {query} (status: {status})"
         
         # Format results
-        output = f"Found {len(results)} active prints for topic '{topic}':\n\n"
+        output = f"Found {len(results)} prints for '{query}' (status: {status}):\n\n"
         for i, print_obj in enumerate(results, 1):
             output += f"{i}. Print {print_obj.number}\n"
             output += f"   Title: {print_obj.title}\n"
@@ -99,8 +106,82 @@ def search_active_prints_by_topic(topic: str, limit: int = 10) -> str:
         
         return output
     except Exception as e:
-        logger.error(f"Error in search_active_prints_by_topic: {e}")
+        logger.error(f"Error in search_prints: {e}")
         return f"Error searching prints: {str(e)}"
+
+
+@mcp.tool()
+def explore_node(node_type: str, node_id: str, limit: int = 50) -> str:
+    """
+    Explore all connections (neighbors) of any node in the database.
+    
+    This is a generic exploration tool that shows all relationships and connected
+    nodes for any entity in the graph database. Useful for discovering connections
+    and understanding the data structure.
+    
+    Args:
+        node_type: Type of node - 'Person', 'Print', 'Topic', 'Process', 'Club', 'Committee'
+        node_id: Node identifier (Person: id number, Print: print number, Topic: topic name, 
+                 Process: process number, Club: club name, Committee: committee code)
+        limit: Maximum neighbors to show per relationship type (default: 50)
+    
+    Returns:
+        JSON string showing all relationships grouped by type:
+        - Relationship type name
+        - Type of connected nodes
+        - Sample of connected nodes with their key properties
+        - Total count of connections
+    
+    Examples:
+        - explore_node("Person", "12345") - shows all connections for MP with ID 12345
+        - explore_node("Print", "1234") - shows authors, topics, processes for print 1234
+        - explore_node("Topic", "Podatki") - shows all prints related to tax topic
+        - explore_node("Club", "PiS") - shows members and activity of PiS party
+    """
+    try:
+        logger.info(f"Exploring node: {node_type} with ID {node_id}")
+        
+        neighbors = query_service.get_node_neighbors(node_type, node_id, limit)
+        
+        if not neighbors:
+            return f"No neighbors found for {node_type} with ID '{node_id}' (or node not found)"
+        
+        output = f"Neighbors of {node_type} '{node_id}':\n"
+        output += "=" * 50 + "\n\n"
+        
+        for rel_type, data in neighbors.items():
+            output += f"[{rel_type}] → {data['neighborType']} (Total: {data['totalCount']})\n"
+            
+            # Show sample neighbors
+            shown = min(10, len(data['neighbors']))
+            for i, neighbor in enumerate(data['neighbors'][:shown], 1):
+                # Format neighbor info based on type
+                if 'name' in neighbor:
+                    output += f"  {i}. {neighbor['name']}"
+                    if 'club' in neighbor:
+                        output += f" ({neighbor['club']})"
+                    output += "\n"
+                elif 'title' in neighbor:
+                    output += f"  {i}. {neighbor.get('number', '?')}: {neighbor['title'][:60]}...\n"
+                elif 'stageName' in neighbor:
+                    output += f"  {i}. {neighbor['stageName']}"
+                    if neighbor.get('date'):
+                        output += f" ({neighbor['date']})"
+                    output += "\n"
+                elif 'speaker' in neighbor:
+                    output += f"  {i}. {neighbor.get('speaker', 'Unknown')}: {neighbor.get('topic', '')[:50]}...\n"
+                else:
+                    output += f"  {i}. {neighbor}\n"
+            
+            if data['totalCount'] > shown:
+                output += f"  ... and {data['totalCount'] - shown} more\n"
+            
+            output += "\n"
+        
+        return output
+    except Exception as e:
+        logger.error(f"Error in explore_node: {e}")
+        return f"Error exploring node: {str(e)}"
 
 
 @mcp.tool()
