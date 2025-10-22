@@ -600,8 +600,8 @@ def run_server():
         logger.info("Server shutdown complete")
 
 
-# Expose the FastAPI app from FastMCP for Uvicorn
-app = mcp.app
+# Expose the ASGI app from FastMCP for Uvicorn (using SSE transport)
+app = mcp.sse_app
 
 
 if __name__ == "__main__":
