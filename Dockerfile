@@ -36,4 +36,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 USER appuser
 
 EXPOSE 8000
-CMD ["python", "-m", "sejmofil_mcp"]
+CMD ["uvicorn", "sejmofil_mcp.server:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -600,5 +600,9 @@ def run_server():
         logger.info("Server shutdown complete")
 
 
+# Expose the FastAPI app from FastMCP for Uvicorn
+app = mcp.app
+
+
 if __name__ == "__main__":
     run_server()
