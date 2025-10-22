@@ -2,13 +2,13 @@
 
 from typing import List, Dict, Any, Optional
 from loguru import logger
-from neo4j_client import neo4j_client
-from embeddings import embeddings_service
-from models import (
+from sejmofil_mcp.neo4j_client import neo4j_client
+from sejmofil_mcp.embeddings import embeddings_service
+from sejmofil_mcp.models import (
     PrintShort, PrintDetail, Comment, Person, PersonActivity,
     Topic, VotingResult, ProcessStatus, ProcessStage, SearchResult
 )
-from config import settings
+from sejmofil_mcp.config import settings
 
 
 class QueryService:

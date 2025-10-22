@@ -3,7 +3,7 @@
 from typing import Any, Dict, List, Optional
 from neo4j import GraphDatabase, Driver, Session
 from loguru import logger
-from config import settings
+from sejmofil_mcp.config import settings
 
 
 class Neo4jClient:

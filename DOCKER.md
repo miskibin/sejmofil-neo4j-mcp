@@ -28,10 +28,6 @@ docker build -t sejmofil-neo4j-mcp:v1.0.0 .
 ```bash
 docker run -it --rm \
   -p 8000:8000 \
-  -e NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687 \
-  -e NEO4J_USER=neo4j \
-  -e NEO4J_PASSWORD=your_password \
-  -e API_KEY=your-secret-key \
   sejmofil-neo4j-mcp:latest
 ```
 

@@ -4,9 +4,9 @@ import os
 import sys
 from mcp.server.fastmcp import FastMCP
 from loguru import logger
-from neo4j_client import neo4j_client
-from queries import query_service
-from config import settings
+from sejmofil_mcp.neo4j_client import neo4j_client
+from sejmofil_mcp.queries import query_service
+from sejmofil_mcp.config import settings
 
 
 def validate_api_key():
