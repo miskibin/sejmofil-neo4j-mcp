@@ -21,6 +21,8 @@ services:
     volumes:
       # Mount logs directory for persistence
       - ./logs:/app/logs
-    # MCP servers communicate via stdio, so we don't expose ports
+    ports:
+      # Expose port 8000 for SSE transport
+      - "8000:8000"
     stdin_open: true
     tty: true

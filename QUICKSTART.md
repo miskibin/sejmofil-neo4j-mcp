@@ -23,10 +23,13 @@ docker-compose up
 # Or build and run manually
 docker build -t sejmofil-neo4j-mcp .
 docker run -it --rm \
+  -p 8000:8000 \
   --env-file .env \
   -v $(pwd)/logs:/app/logs \
   sejmofil-neo4j-mcp:latest
 ```
+
+The server uses SSE transport on port 8000.
 
 ## Using uv (Development)
 
@@ -83,6 +86,7 @@ Add to `~/.config/claude/config.json` (or `%APPDATA%\Claude\config.json` on Wind
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
+        "-p", "8000:8000",
         "-e", "NEO4J_PASSWORD=your_password",
         "-e", "API_KEY=your_key",
         "sejmofil-neo4j-mcp:latest"

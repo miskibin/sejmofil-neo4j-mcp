@@ -32,5 +32,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
 
+# Expose port 8000 for SSE transport
+EXPOSE 8000
+
 # Run the MCP server
 CMD ["python", "-m", "sejmofil_mcp"]

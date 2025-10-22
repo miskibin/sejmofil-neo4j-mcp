@@ -502,8 +502,8 @@ def run_server():
         raise
     
     try:
-        # Run the server
-        mcp.run()
+        # Run the server with SSE transport
+        mcp.run(transport="sse")
     finally:
         # Cleanup
         neo4j_client.close()

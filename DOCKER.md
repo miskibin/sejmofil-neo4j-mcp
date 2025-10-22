@@ -27,12 +27,15 @@ docker build -t sejmofil-neo4j-mcp:v1.0.0 .
 
 ```bash
 docker run -it --rm \
+  -p 8000:8000 \
   -e NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687 \
   -e NEO4J_USER=neo4j \
   -e NEO4J_PASSWORD=your_password \
   -e API_KEY=your-secret-key \
   sejmofil-neo4j-mcp:latest
 ```
+
+The server uses SSE (Server-Sent Events) transport and listens on port 8000.
 
 ### With Docker Compose
 
@@ -121,6 +124,7 @@ Add this to your Claude Desktop config file:
         "run",
         "-i",
         "--rm",
+        "-p", "8000:8000",
         "-e", "NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687",
         "-e", "NEO4J_USER=neo4j",
         "-e", "NEO4J_PASSWORD=your_password",

@@ -76,6 +76,7 @@ docker-compose up
 
 # Or run the container directly
 docker run -it --rm \
+  -p 8000:8000 \
   -e NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687 \
   -e NEO4J_USER=neo4j \
   -e NEO4J_PASSWORD=your_password \
@@ -83,6 +84,8 @@ docker run -it --rm \
   -v $(pwd)/logs:/app/logs \
   sejmofil-neo4j-mcp:latest
 ```
+
+The server uses SSE (Server-Sent Events) transport and listens on port 8000.
 
 ### Using MCP Inspector (Recommended for testing)
 
@@ -322,6 +325,8 @@ Add to Claude Desktop config:
         "run",
         "-i",
         "--rm",
+        "-p",
+        "8000:8000",
         "-e",
         "NEO4J_HOST=bolt+s://neo.msulawiak.pl:7687",
         "-e",
