@@ -104,3 +104,23 @@ class SearchResult(BaseModel):
     title: str
     description: Optional[str] = None
     relevance: Optional[float] = None
+
+
+class Club(BaseModel):
+    """Club (parliamentary group) basic information"""
+    name: str
+    memberCount: int = 0
+    activeMembers: int = 0
+
+
+class ClubStatistics(BaseModel):
+    """Club (parliamentary group) statistics"""
+    name: str
+    memberCount: int = 0
+    activeMembers: int = 0
+    authoredPrints: int = 0
+    activePrints: int = 0
+    finishedPrints: int = 0
+    totalVotes: int = 0
+    speechCount: int = 0
+    committeePositions: int = 0

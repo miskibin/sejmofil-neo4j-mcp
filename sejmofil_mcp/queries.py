@@ -6,7 +6,7 @@ from neo4j_client import neo4j_client
 from embeddings import embeddings_service
 from models import (
     PrintShort, PrintDetail, Comment, Person, PersonActivity,
-    Topic, VotingResult, ProcessStatus, ProcessStage, SearchResult
+    Topic, VotingResult, ProcessStatus, ProcessStage, SearchResult, Club, ClubStatistics
 )
 from config import settings
 
@@ -561,6 +561,132 @@ class QueryService:
             return {}
         
         return results[0]
+    
+    def get_club_statistics(self, club_name: str) -> Optional[ClubStatistics]:
+        """
+        Get comprehensive statistics about a parliamentary club (party)
+        
+        Args:
+            club_name: Club name to get statistics for
+            
+        Returns:
+            Club statistics or None if not found
+        """
+        query = """
+        MATCH (club:Club {name: $clubName})
+        
+        // Count members
+        OPTIONAL MATCH (member:Person {club: $clubName})
+        WITH club, member
+        WITH club,
+             count(DISTINCT member) as memberCount,
+             sum(CASE WHEN member.active = true THEN 1 ELSE 0 END) as activeMembers
+        
+        // Count authored prints
+        OPTIONAL MATCH (author:Person {club: $clubName})-[:AUTHORED]->(print:Print)
+        WITH club, memberCount, activeMembers, print
+        WITH club, memberCount, activeMembers,
+             count(DISTINCT print) as authoredPrints
+        
+        // Separate active and finished authored prints
+        OPTIONAL MATCH (author:Person {club: $clubName})-[:AUTHORED]->(print2:Print)
+        OPTIONAL MATCH (print2)-[:IS_SOURCE_OF]->(process:Process)
+        OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
+        
+        WITH club, memberCount, activeMembers, authoredPrints, print2, process, stage
+        ORDER BY stage.date DESC, stage.number DESC
+        
+        WITH club, memberCount, activeMembers, authoredPrints, print2, process,
+             COLLECT(stage)[0] as latestStage
+        
+        WITH club, memberCount, activeMembers, authoredPrints,
+             sum(CASE 
+               WHEN process IS NULL 
+                    OR latestStage IS NULL 
+                    OR (latestStage.stageName IS NOT NULL 
+                        AND NOT latestStage.stageName IN [
+                          'Publikacja w Dzienniku Ustaw',
+                          'Odrzucenie projektu ustawy',
+                          'Wycofanie projektu'
+                        ])
+               THEN 1 
+               ELSE 0
+             END) as activePrints,
+             sum(CASE 
+               WHEN latestStage.stageName IN [
+                 'Publikacja w Dzienniku Ustaw',
+                 'Odrzucenie projektu ustawy',
+                 'Wycofanie projektu'
+               ]
+               THEN 1 
+               ELSE 0
+             END) as finishedPrints
+        
+        // Count votes and speeches
+        OPTIONAL MATCH (voter:Person {club: $clubName})-[vote:VOTED]->()
+        OPTIONAL MATCH (speaker:Person {club: $clubName})-[speech:SAID]->()
+        
+        WITH club, memberCount, activeMembers, authoredPrints, activePrints, 
+             finishedPrints,
+             count(DISTINCT vote) as totalVotes,
+             count(DISTINCT speech) as speechCount
+        
+        // Count committee positions
+        OPTIONAL MATCH (member:Person {club: $clubName})-[:BELONGS_TO]->(committee:Committee)
+        WITH club, memberCount, activeMembers, authoredPrints, activePrints,
+             finishedPrints, totalVotes, speechCount,
+             count(DISTINCT committee) as committeePositions
+        
+        RETURN 
+          club.name as name,
+          memberCount,
+          activeMembers,
+          authoredPrints,
+          activePrints,
+          finishedPrints,
+          totalVotes,
+          speechCount,
+          committeePositions
+        """
+        
+        results = neo4j_client.execute_read_query(query, {"clubName": club_name})
+        
+        if not results:
+            return None
+        
+        return ClubStatistics(**results[0])
+    
+    def list_clubs(self) -> List[Club]:
+        """
+        Get list of all parliamentary clubs (parties)
+        
+        Returns:
+            List of all clubs with their member counts
+        """
+        query = """
+        // Get all unique clubs
+        MATCH (person:Person)
+        WHERE person.club IS NOT NULL
+        
+        WITH DISTINCT person.club as clubName
+        
+        // Count total members per club
+        OPTIONAL MATCH (member:Person {club: clubName})
+        WITH clubName, count(DISTINCT member) as memberCount
+        
+        // Count active members per club
+        OPTIONAL MATCH (activeMember:Person {club: clubName, active: true})
+        WITH clubName, memberCount, count(DISTINCT activeMember) as activeMembers
+        
+        RETURN 
+          clubName as name,
+          memberCount,
+          activeMembers
+        ORDER BY memberCount DESC
+        """
+        
+        results = neo4j_client.execute_read_query(query, {})
+        return [Club(**r) for r in results]
 
 
 # Global query service instance

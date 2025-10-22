@@ -408,6 +408,96 @@ def get_topic_statistics(topic_name: str) -> str:
 
 
 @mcp.tool()
+def get_club_statistics(club_name: str) -> str:
+    """
+    Get comprehensive statistics about a parliamentary club (political party/group).
+    
+    Retrieves detailed statistics about a club including membership, legislative
+    activity (authored prints), voting participation, speeches, and committee
+    involvement.
+    
+    Args:
+        club_name: Club name to get statistics for (e.g., 'PiS', 'Platforma Obywatelska', 'Lewica')
+    
+    Returns:
+        JSON string with club statistics including:
+        - Club name
+        - Total members and active members
+        - Number of authored prints (active and finished)
+        - Total votes cast by club members
+        - Total speeches made by club members
+        - Number of committee positions held
+    """
+    try:
+        logger.info(f"Getting statistics for club: {club_name}")
+        
+        stats = query_service.get_club_statistics(club_name)
+        
+        if not stats:
+            return f"Club '{club_name}' not found"
+        
+        output = f"Club Statistics - {stats.name}\n"
+        output += "=" * 50 + "\n\n"
+        
+        output += f"Members: {stats.memberCount}\n"
+        output += f"Active Members: {stats.activeMembers}\n"
+        
+        output += f"\nLegislative Activity:\n"
+        output += f"  Total Authored Prints: {stats.authoredPrints}\n"
+        output += f"  Active Prints: {stats.activePrints}\n"
+        output += f"  Finished Prints: {stats.finishedPrints}\n"
+        
+        output += f"\nParliamentary Engagement:\n"
+        output += f"  Votes Cast: {stats.totalVotes}\n"
+        output += f"  Speeches: {stats.speechCount}\n"
+        output += f"  Committee Positions: {stats.committeePositions}\n"
+        
+        return output
+    except Exception as e:
+        logger.error(f"Error in get_club_statistics: {e}")
+        return f"Error getting club statistics: {str(e)}"
+
+
+@mcp.tool()
+def list_clubs() -> str:
+    """
+    List all parliamentary clubs (political parties/groups).
+    
+    Retrieves a list of all parliamentary clubs currently in the database,
+    showing member counts and active member information.
+    
+    Returns:
+        Formatted string with list of all clubs including:
+        - Club name
+        - Total number of members
+        - Number of active members
+        - Ordered by membership size (largest first)
+    """
+    try:
+        logger.info("Listing all parliamentary clubs")
+        
+        clubs = query_service.list_clubs()
+        
+        if not clubs:
+            return "No clubs found in the database"
+        
+        output = f"Parliamentary Clubs ({len(clubs)} total)\n"
+        output += "=" * 50 + "\n\n"
+        
+        for i, club in enumerate(clubs, 1):
+            output += f"{i}. {club.name}\n"
+            output += f"   Members: {club.memberCount}"
+            if club.activeMembers > 0:
+                output += f" (Active: {club.activeMembers})"
+            output += "\n\n"
+        
+        return output
+    except Exception as e:
+        logger.error(f"Error in list_clubs: {e}")
+        return f"Error listing clubs: {str(e)}"
+
+
+@mcp.tool()
 def search_all(query: str, limit: int = 10) -> str:
     """
     Search across all entity types (prints, MPs, topics).
@@ -473,7 +563,8 @@ def run_server():
     
     try:
         # Run the server
-        mcp.run()
+        # mcp.run()
+        mcp.run(transport="sse")
     finally:
         # Cleanup
         neo4j_client.close()
