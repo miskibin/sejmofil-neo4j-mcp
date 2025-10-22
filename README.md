@@ -2,6 +2,8 @@
 
 Model Context Protocol server for querying Polish parliamentary data from Neo4j graph database.
 
+**📚 [Quick Start Guide](QUICKSTART.md) | [Docker Guide](DOCKER.md)**
+
 ## Features
 
 - 🔍 **Semantic Search**: Find legislative prints using AI-powered semantic search
