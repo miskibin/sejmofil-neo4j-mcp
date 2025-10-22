@@ -1,10 +1,40 @@
 """Sejmofil Neo4j MCP Server - Main server implementation"""
 
+import os
+import sys
 from mcp.server.fastmcp import FastMCP
 from loguru import logger
-from neo4j_client import neo4j_client
-from queries import query_service
-from config import settings
+from sejmofil_mcp.neo4j_client import neo4j_client
+from sejmofil_mcp.queries import query_service
+from sejmofil_mcp.config import settings
+
+
+def validate_api_key():
+    """Validate API key if authorization is enabled"""
+    # If no API key configured, allow access
+    if not settings.API_KEY:
+        logger.warning("No API key configured - authorization disabled")
+        return True
+    
+    # Check for API_KEY environment variable from client
+    client_api_key = os.getenv('API_KEY')
+    
+    if not client_api_key:
+        logger.error("Authorization required: API_KEY environment variable not set")
+        return False
+    
+    if client_api_key != settings.API_KEY:
+        logger.error("Authorization failed: Invalid API key")
+        return False
+    
+    logger.info("API key validated successfully")
+    return True
+
+
+# Validate API key before initializing server
+if not validate_api_key():
+    logger.error("Server startup aborted due to authentication failure")
+    sys.exit(1)
 
 
 # Initialize FastMCP server
@@ -562,8 +592,7 @@ def run_server():
         raise
     
     try:
-        # Run the server
-        # mcp.run()
+        # Run the server with SSE transport
         mcp.run(transport="sse")
     finally:
         # Cleanup

@@ -3,7 +3,7 @@
 from typing import List, Optional
 from openai import OpenAI
 from loguru import logger
-from config import settings
+from sejmofil_mcp.config import settings
 
 
 class EmbeddingsService:
