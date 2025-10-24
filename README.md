@@ -342,6 +342,7 @@ The server queries a Neo4j database with the following main entities:
 - **Process** - Legislative processes
 - **Stage** - Process stages
 - **Person** - Members of parliament
+- **Club** - Parliamentary clubs (political parties/groups)
 - **Topic** - Thematic categories
 - **Organization** - Institutions
 - **Committee** - Parliamentary committees
