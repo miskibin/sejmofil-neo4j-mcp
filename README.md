@@ -6,9 +6,11 @@ Model Context Protocol server for querying Polish parliamentary data from Neo4j 
 
 ## Features
 
-- 🔍 **Semantic Search**: Find legislative prints using AI-powered semantic search
+- 🔍 **Semantic Search**: Find legislative prints using AI-powered semantic search with flexible status filtering
+- 🔗 **Graph Exploration**: Explore connections and relationships between any nodes in the database
 - 📊 **Process Tracking**: Check status of legislative processes (active/finished)
 - 👥 **MP Activity**: Query member of parliament legislative activity
+- 🏛️ **Club Statistics**: Get comprehensive statistics about parliamentary clubs (parties)
 - 🏷️ **Topic Analysis**: Find similar topics and get statistics
 - 📝 **Detailed Information**: Get comprehensive details about prints, processes, and MPs
 
@@ -102,9 +104,10 @@ The inspector will open in your browser. Try these example tool calls:
 ```json
 // Example 1: Search active prints about taxes
 {
-  "name": "search_active_prints_by_topic",
+  "name": "search_prints",
   "arguments": {
-    "topic": "podatki",
+    "query": "podatki",
+    "status": "active",
     "limit": 5
   }
 }
@@ -122,6 +125,24 @@ The inspector will open in your browser. Try these example tool calls:
   "name": "find_mp_by_name",
   "arguments": {
     "name": "Tusk"
+  }
+}
+
+// Example 4: Explore connections of a topic
+{
+  "name": "explore_node",
+  "arguments": {
+    "node_type": "Topic",
+    "node_id": "Podatki",
+    "limit": 10
+  }
+}
+
+// Example 5: Get club statistics
+{
+  "name": "get_club_statistics",
+  "arguments": {
+    "club_name": "PiS"
   }
 }
 ```
@@ -156,20 +177,38 @@ uv run python debug_queries.py
 
 ## Available Tools
 
-### 1. `search_active_prints_by_topic`
-Find currently processed parliamentary prints on a specific topic.
+### 1. `search_prints`
+Search for parliamentary prints (legislative documents) by topic or keywords.
 
 **Arguments:**
-- `topic` (str): Topic in Polish (e.g., "podatki", "obrona narodowa")
-- `limit` (int): Max results (default: 10)
+- `query` (str): Search query in Polish (e.g., "podatki", "obrona", "energia odnawialna")
+- `limit` (int): Maximum number of results to return (default: 10, max: 50)
+- `status` (str): Filter by status - 'active' (currently processed), 'finished' (published/withdrawn), or 'all' (default: 'all')
 
-**Example:**
+**Examples:**
 ```
-Topic: "podatki"
-Returns: Active tax-related legislative prints
+search_prints("podatki", status="active") - finds active tax-related prints
+search_prints("obrona narodowa") - finds all defense prints
+search_prints("energia", status="finished") - finds completed energy prints
 ```
 
-### 2. `get_print_details`
+### 2. `explore_node`
+Explore all connections (neighbors) of any node in the database.
+
+**Arguments:**
+- `node_type` (str): Type of node - 'Person', 'Print', 'Topic', 'Process', 'Club', 'Committee'
+- `node_id` (str): Node identifier (Person: id number, Print: print number, Topic: topic name, Process: process number, Club: club name, Committee: committee code)
+- `limit` (int): Maximum neighbors to show per relationship type (default: 50)
+
+**Examples:**
+```
+explore_node("Person", "12345") - shows all connections for MP with ID 12345
+explore_node("Print", "1234") - shows authors, topics, processes for print 1234
+explore_node("Topic", "Podatki") - shows all prints related to tax topic
+explore_node("Club", "PiS") - shows members and activity of PiS party
+```
+
+### 3. `get_print_details`
 Get comprehensive information about a specific print.
 
 **Arguments:**
@@ -177,7 +216,7 @@ Get comprehensive information about a specific print.
 
 **Returns:** Full metadata, authors, topics, organizations, current stage, comments
 
-### 3. `get_process_status`
+### 4. `get_process_status`
 Check if a legislative process is active or finished.
 
 **Arguments:**
@@ -185,7 +224,7 @@ Check if a legislative process is active or finished.
 
 **Returns:** Status (active/finished), current stage, all stages with dates
 
-### 4. `find_mp_by_name`
+### 5. `find_mp_by_name`
 Find members of parliament by name.
 
 **Arguments:**
@@ -193,7 +232,7 @@ Find members of parliament by name.
 
 **Returns:** List of matching MPs with club and role info
 
-### 5. `get_mp_activity`
+### 6. `get_mp_activity`
 Get legislative activity for a member of parliament.
 
 **Arguments:**
@@ -201,7 +240,7 @@ Get legislative activity for a member of parliament.
 
 **Returns:** Authored prints, speeches count, committee memberships
 
-### 6. `get_similar_topics`
+### 7. `get_similar_topics`
 Find semantically similar topics.
 
 **Arguments:**
@@ -210,7 +249,7 @@ Find semantically similar topics.
 
 **Returns:** Similar topics with similarity scores
 
-### 7. `get_topic_statistics`
+### 8. `get_topic_statistics`
 Get statistics about a parliamentary topic.
 
 **Arguments:**
@@ -218,7 +257,20 @@ Get statistics about a parliamentary topic.
 
 **Returns:** Total prints, active prints, finished prints
 
-### 8. `search_all`
+### 9. `get_club_statistics`
+Get comprehensive statistics about a parliamentary club (political party/group).
+
+**Arguments:**
+- `club_name` (str): Club name to get statistics for (e.g., 'PiS', 'Platforma Obywatelska', 'Lewica')
+
+**Returns:** Statistics including membership, legislative activity, voting, speeches, and committee involvement
+
+### 10. `list_clubs`
+List all parliamentary clubs (political parties/groups).
+
+**Returns:** List of all clubs with member counts and active member information, ordered by membership size
+
+### 11. `search_all`
 Search across all entity types.
 
 **Arguments:**
@@ -243,14 +295,19 @@ sejmofil_mcp/
 
 ## Example Queries
 
-### Find active prints about taxes
+### Search for prints about taxes (active only)
 ```python
-search_active_prints_by_topic(topic="podatki", limit=5)
+search_prints(query="podatki", status="active", limit=5)
 ```
 
 ### Get details about a specific print
 ```python
 get_print_details(print_number="1234")
+```
+
+### Explore all connections of a topic
+```python
+explore_node(node_type="Topic", node_id="Podatki", limit=50)
 ```
 
 ### Check if a process is still active
@@ -265,6 +322,16 @@ mps = find_mp_by_name(name="Kowalski")
 
 # Then get their activity
 activity = get_mp_activity(person_id=mps[0].id)
+```
+
+### Get statistics for a parliamentary club
+```python
+get_club_statistics(club_name="PiS")
+```
+
+### List all parliamentary clubs
+```python
+list_clubs()
 ```
 
 ## Database Schema
