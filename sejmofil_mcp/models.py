@@ -97,6 +97,20 @@ class ProcessStatus(BaseModel):
     allStages: List[ProcessStage] = Field(default_factory=list)
 
 
+class ProcessDetail(BaseModel):
+    """Detailed process information with all related prints and metadata"""
+    processNumber: str
+    title: str
+    status: str  # 'active' or 'finished'
+    currentStage: Optional[str] = None
+    stageDate: Optional[str] = None
+    allStages: List[ProcessStage] = Field(default_factory=list)
+    prints: List[PrintShort] = Field(default_factory=list)
+    allSubjects: List[str] = Field(default_factory=list)
+    allOrganizations: List[str] = Field(default_factory=list)
+    allTopics: List[str] = Field(default_factory=list)
+
+
 class SearchResult(BaseModel):
     """Generic search result"""
     type: str  # 'print', 'person', 'topic'

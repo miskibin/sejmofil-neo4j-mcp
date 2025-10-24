@@ -6,7 +6,8 @@ from sejmofil_mcp.neo4j_client import neo4j_client
 from sejmofil_mcp.embeddings import embeddings_service
 from sejmofil_mcp.models import (
     PrintShort, PrintDetail, Comment, Person, PersonActivity,
-    Topic, VotingResult, ProcessStatus, ProcessStage, SearchResult, Club, ClubStatistics
+    Topic, VotingResult, ProcessStatus, ProcessStage, SearchResult, Club, ClubStatistics,
+    ProcessDetail
 )
 from sejmofil_mcp.config import settings
 
@@ -43,6 +44,7 @@ class QueryService:
         CALL db.index.vector.queryNodes('printEmbeddingIndex', $limit * 2, $embedding)
         YIELD node as print, score
         WHERE print.summary IS NOT NULL
+          AND print.number IN print.processPrint
         
         // Get process and stages
         OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
@@ -105,6 +107,7 @@ class QueryService:
         CALL db.index.fulltext.queryNodes("print_content", $query) 
         YIELD node as print, score
         WHERE print.summary IS NOT NULL
+          AND print.number IN print.processPrint
         
         // Get process status
         OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
@@ -217,6 +220,121 @@ class QueryService:
             return None
         
         return PrintDetail(**results[0])
+    
+    def get_process_details(self, print_number: str) -> Optional[ProcessDetail]:
+        """
+        Get comprehensive details about a legislative process including all related prints
+        
+        Args:
+            print_number: Any print number from the process to look up
+            
+        Returns:
+            Detailed process information with all prints, stages, subjects, and organizations
+        """
+        
+        query = """
+        // Find the print and its process
+        MATCH (print:Print {number: $printNumber})
+        OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
+        
+        // If no process found, this print doesn't have one
+        WITH print, process
+        WHERE process IS NOT NULL
+        
+        // Get all prints in this process
+        OPTIONAL MATCH (processPrint:Print)-[:IS_SOURCE_OF]->(process)
+        
+        // Get all stages
+        OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
+        WITH print, process, processPrint, stage
+        ORDER BY stage.date DESC, stage.number DESC
+        WITH print, process, 
+             COLLECT(DISTINCT processPrint) as allProcessPrints,
+             COLLECT(stage) as allStages,
+             COLLECT(stage)[0] as latestStage
+        
+        // Determine process status
+        WITH print, process, allProcessPrints, allStages, latestStage,
+             CASE 
+               WHEN latestStage IS NULL THEN 'unknown'
+               WHEN latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'] THEN 'finished'
+               ELSE 'active'
+             END as status
+        
+        // Get all subjects from all prints in the process
+        UNWIND allProcessPrints as pp
+        OPTIONAL MATCH (subject:Person)-[:SUBJECT]->(pp)
+        WITH print, process, allProcessPrints, allStages, latestStage, status,
+             COLLECT(DISTINCT subject.firstLastName) as allSubjects
+        
+        // Get all organizations from all prints in the process
+        UNWIND allProcessPrints as pp2
+        OPTIONAL MATCH (pp2)-[:REFERS_TO]->(org:Organization)
+        WITH print, process, allProcessPrints, allStages, latestStage, status, allSubjects,
+             COLLECT(DISTINCT org.name) as allOrganizations
+        
+        // Get all topics from all prints in the process
+        UNWIND allProcessPrints as pp3
+        OPTIONAL MATCH (pp3)-[:REFERS_TO]->(topic:Topic)
+        WITH print, process, allProcessPrints, allStages, latestStage, status, 
+             allSubjects, allOrganizations,
+             COLLECT(DISTINCT topic.name) as allTopics
+        
+        // Format print details
+        WITH process, allStages, latestStage, status, allSubjects, allOrganizations, allTopics,
+             [p in allProcessPrints | {
+               number: p.number,
+               title: p.title,
+               summary: p.summary,
+               documentDate: p.documentDate
+             }] as printDetails
+        
+        RETURN 
+          process.number as processNumber,
+          process.title as title,
+          status,
+          latestStage.stageName as currentStage,
+          latestStage.date as stageDate,
+          [s in allStages | {
+            stageName: s.stageName,
+            date: s.date,
+            number: s.number,
+            type: s.type
+          }] as allStages,
+          printDetails as prints,
+          allSubjects,
+          allOrganizations,
+          allTopics
+        """
+        
+        results = neo4j_client.execute_read_query(query, {"printNumber": print_number})
+        
+        if not results:
+            return None
+        
+        # Convert prints to PrintShort objects
+        result = results[0]
+        prints_data = result.get('prints', [])
+        prints = [PrintShort(**{k: v for k, v in p.items() if k in ['number', 'title', 'summary', 'documentDate']}) 
+                  for p in prints_data if p]
+        
+        # Convert stages to ProcessStage objects
+        stages_data = result.get('allStages', [])
+        stages = [ProcessStage(**{k: v for k, v in s.items() if k in ['stageName', 'date', 'number', 'type']}) 
+                  for s in stages_data if s]
+        
+        return ProcessDetail(
+            processNumber=result['processNumber'],
+            title=result.get('title', ''),
+            status=result['status'],
+            currentStage=result.get('currentStage'),
+            stageDate=result.get('stageDate'),
+            allStages=stages,
+            prints=prints,
+            allSubjects=[s for s in result.get('allSubjects', []) if s],
+            allOrganizations=[o for o in result.get('allOrganizations', []) if o],
+            allTopics=[t for t in result.get('allTopics', []) if t]
+        )
     
     def get_print_comments(self, print_number: str) -> List[Comment]:
         """
@@ -411,149 +529,6 @@ class QueryService:
             speechCount=speech_count,
             committees=committees
         )
-    
-    def get_similar_topics(
-        self, 
-        topic_name: str, 
-        limit: int = 5
-    ) -> List[Topic]:
-        """
-        Find topics semantically similar to a given topic
-        
-        Args:
-            topic_name: Topic name to find similar topics for
-            limit: Maximum number of results
-            
-        Returns:
-            List of similar topics
-        """
-        query = """
-        MATCH (sourceTopic:Topic {name: $topicName})
-        WHERE sourceTopic.embedding IS NOT NULL
-        
-        WITH sourceTopic
-        MATCH (otherTopic:Topic)
-        WHERE otherTopic <> sourceTopic 
-          AND otherTopic.embedding IS NOT NULL
-        
-        WITH otherTopic, sourceTopic,
-             gds.similarity.cosine(sourceTopic.embedding, otherTopic.embedding) as similarity
-        WHERE similarity > $threshold
-        
-        // Get print count for each topic
-        OPTIONAL MATCH (otherTopic)<-[:REFERS_TO]-(print:Print)
-        WITH otherTopic, similarity, count(print) as printCount
-        
-        RETURN 
-          otherTopic.name as name,
-          otherTopic.description as description,
-          printCount,
-          similarity
-        ORDER BY similarity DESC
-        LIMIT $limit
-        """
-        
-        results = neo4j_client.execute_read_query(query, {
-            "topicName": topic_name,
-            "threshold": settings.TOPIC_SIMILARITY_THRESHOLD,
-            "limit": limit
-        })
-        
-        return [Topic(**r) for r in results]
-    
-    def search_all(self, query_text: str, limit: int = 20) -> Dict[str, List[SearchResult]]:
-        """
-        Search across prints, persons, and topics
-        
-        Args:
-            query_text: Search query
-            limit: Results per category
-            
-        Returns:
-            Dictionary with results by type
-        """
-        # Search prints
-        print_results = self.search_prints_by_query(query_text, limit)
-        
-        # Search persons
-        person_results = self.find_person_by_name(query_text)
-        
-        # Convert to generic search results
-        return {
-            "prints": [
-                SearchResult(
-                    type="print",
-                    id=p.number,
-                    title=p.title,
-                    description=p.summary,
-                    relevance=p.score
-                ) for p in print_results
-            ],
-            "persons": [
-                SearchResult(
-                    type="person",
-                    id=str(p.id) if p.id else p.name,
-                    title=p.name,
-                    description=f"{p.club} - {p.role}" if p.club and p.role else None,
-                    relevance=None
-                ) for p in person_results
-            ]
-        }
-    
-    def get_topic_statistics(self, topic_name: str) -> Dict[str, Any]:
-        """
-        Get statistics about a topic
-        
-        Args:
-            topic_name: Topic name
-            
-        Returns:
-            Topic statistics
-        """
-        query = """
-        MATCH (topic:Topic {name: $topicName})
-        OPTIONAL MATCH (topic)<-[:REFERS_TO]-(print:Print)
-        
-        WITH topic, print
-        OPTIONAL MATCH (print)-[:IS_SOURCE_OF]->(process:Process)
-        OPTIONAL MATCH (process)-[:HAS]->(stage:Stage)
-        
-        WITH topic, print, process, stage
-        ORDER BY stage.date DESC, stage.number DESC
-        
-        WITH topic, print, process, COLLECT(stage)[0] as latestStage
-        
-        // Separate active and finished prints
-        WITH topic,
-             count(DISTINCT print) as totalPrints,
-             sum(CASE 
-               WHEN process IS NULL 
-                    OR latestStage IS NULL 
-                    OR latestStage.type IS NULL
-                    OR NOT (latestStage.type IN ['PUBLICATION', 'WITHDRAWAL'])
-               THEN 1 
-               ELSE 0
-             END) as activePrints,
-             sum(CASE 
-               WHEN latestStage.type IN ['PUBLICATION', 'WITHDRAWAL']
-               THEN 1 
-               ELSE 0
-             END) as finishedPrints
-        
-        RETURN 
-          topic.name as name,
-          topic.description as description,
-          totalPrints,
-          activePrints,
-          finishedPrints
-        """
-        
-        results = neo4j_client.execute_read_query(query, {"topicName": topic_name})
-        
-        if not results:
-            return {}
-        
-        return results[0]
     
     def get_club_statistics(self, club_name: str) -> Optional[ClubStatistics]:
         """
