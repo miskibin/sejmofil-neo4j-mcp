@@ -635,7 +635,9 @@ class QueryService:
         """
         # Build query based on node type
         if node_type == 'Person':
-            match_clause = "MATCH (n:Person {id: $nodeId})"
+            # Person.id is stored as an integer in the database. Cast parameter to integer
+            # so both string and integer parameters (e.g. "400" or 400) will match.
+            match_clause = "MATCH (n:Person {id: toInteger($nodeId)})"
         elif node_type == 'Print':
             match_clause = "MATCH (n:Print {number: $nodeId})"
         elif node_type == 'Topic':
