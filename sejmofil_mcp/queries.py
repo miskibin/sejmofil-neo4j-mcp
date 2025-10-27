@@ -22,7 +22,10 @@ class QueryService:
         status_filter: Optional[str] = None
     ) -> List[PrintShort]:
         """
-        Search for prints using semantic or fulltext search
+        Hybrid search for prints using both vector and fulltext search with Reciprocal Rank Fusion
+        
+        Combines semantic vector search with keyword fulltext search for best results.
+        Falls back to fulltext-only if embeddings are unavailable.
         
         Args:
             query_text: Text query to search for
@@ -30,18 +33,39 @@ class QueryService:
             status_filter: Optional filter - 'active', 'finished', or None for all
             
         Returns:
-            List of prints matching the query
+            List of prints matching the query, ranked by hybrid score
         """
         if not embeddings_service.is_available():
             logger.warning("Embeddings service not available, falling back to fulltext search")
             return self._search_prints_fulltext(query_text, limit, status_filter)
         
+        logger.info(f"Using hybrid search (vector + fulltext) for query: {query_text}")
+        
+        # Get results from both search methods
+        vector_results = self._search_prints_vector(query_text, limit * 2, status_filter)
+        fulltext_results = self._search_prints_fulltext(query_text, limit * 2, status_filter)
+        
+        # Combine using Reciprocal Rank Fusion
+        merged_results = self._reciprocal_rank_fusion(vector_results, fulltext_results, limit)
+        
+        return merged_results
+    
+    def _search_prints_vector(
+        self,
+        query_text: str,
+        limit: int = 10,
+        status_filter: Optional[str] = None
+    ) -> List[PrintShort]:
+        """Vector search for prints using embeddings"""
+        
         # Generate embedding for the query
         embedding = embeddings_service.generate_embedding(query_text)
         
+        # Fetch more candidates (3x the limit) to improve recall before filtering
+        # This helps find relevant documents that might have slightly lower similarity scores
         query = """
         // Vector search on prints
-        CALL db.index.vector.queryNodes('printEmbeddingIndex', $limit * 2, $embedding)
+        CALL db.index.vector.queryNodes('printEmbeddingIndex', $limit * 3, $embedding)
         YIELD node as print, score
         WHERE print.summary IS NOT NULL
           AND print.number IN print.processPrint
@@ -95,6 +119,52 @@ class QueryService:
         
         return [PrintShort(**r) for r in results]
     
+    def _reciprocal_rank_fusion(
+        self,
+        vector_results: List[PrintShort],
+        fulltext_results: List[PrintShort],
+        limit: int,
+        k: int = 60
+    ) -> List[PrintShort]:
+        """
+        Merge results from vector and fulltext search using Reciprocal Rank Fusion
+        
+        RRF formula: score = sum(1 / (k + rank)) for each result list
+        where k=60 is a standard constant that reduces impact of high ranks
+        
+        Args:
+            vector_results: Results from vector search
+            fulltext_results: Results from fulltext search
+            limit: Maximum number of results to return
+            k: RRF constant (default: 60)
+            
+        Returns:
+            Merged and re-ranked results
+        """
+        # Build a dictionary to store RRF scores by print number
+        rrf_scores = {}
+        all_prints = {}
+        
+        # Add vector search results
+        for rank, print_obj in enumerate(vector_results, start=1):
+            rrf_scores[print_obj.number] = rrf_scores.get(print_obj.number, 0) + (1 / (k + rank))
+            all_prints[print_obj.number] = print_obj
+        
+        # Add fulltext search results
+        for rank, print_obj in enumerate(fulltext_results, start=1):
+            rrf_scores[print_obj.number] = rrf_scores.get(print_obj.number, 0) + (1 / (k + rank))
+            if print_obj.number not in all_prints:
+                all_prints[print_obj.number] = print_obj
+        
+        # Sort by RRF score (descending) and return top results
+        sorted_print_numbers = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)
+        
+        merged_results = [all_prints[number] for number in sorted_print_numbers[:limit]]
+        
+        logger.info(f"Hybrid search merged {len(vector_results)} vector + {len(fulltext_results)} fulltext results into {len(merged_results)} final results")
+        
+        return merged_results
+    
     def _search_prints_fulltext(
         self, 
         query_text: str, 
@@ -102,6 +172,10 @@ class QueryService:
         status_filter: Optional[str] = None
     ) -> List[PrintShort]:
         """Fallback fulltext search for prints"""
+        
+        # Improve multi-word queries by adding fuzzy search operator
+        # This helps match different grammatical forms in Polish
+        processed_query = " OR ".join([f"{word}~" for word in query_text.split()])
         
         query = """
         CALL db.index.fulltext.queryNodes("print_content", $query) 
@@ -150,7 +224,7 @@ class QueryService:
         """
         
         results = neo4j_client.execute_read_query(query, {
-            "query": query_text,
+            "query": processed_query,
             "limit": limit
         })
         
