@@ -7,6 +7,7 @@ from loguru import logger
 from sejmofil_mcp.neo4j_client import neo4j_client
 from sejmofil_mcp.queries import query_service
 from sejmofil_mcp.config import settings
+from sejmofil_mcp.models import PrintShort
 
 
 def validate_api_key():
@@ -31,6 +32,48 @@ def validate_api_key():
     return True
 
 
+def format_print_output(print_obj: PrintShort, index: int = None) -> str:
+    """
+    Format a single print object for consistent output across all functions.
+    
+    Args:
+        print_obj: PrintShort object to format
+        index: Optional index number for the print in a list
+        
+    Returns:
+        Formatted string representation of the print
+    """
+    output = ""
+    
+    # Add index if provided
+    if index is not None:
+        output += f"{index}. Print {print_obj.number}\n"
+    else:
+        output += f"Print {print_obj.number}\n"
+    
+    # Title
+    output += f"   {print_obj.title}\n"
+    
+    # Document date (without timestamp)
+    if print_obj.documentDate:
+        date_only = print_obj.documentDate.split('T')[0] if 'T' in print_obj.documentDate else print_obj.documentDate
+        output += f"   Date: {date_only}\n"
+    
+    # Current stage with stage date (without timestamp)
+    if print_obj.currentStage:
+        stage_info = f"   Stage: {print_obj.currentStage}"
+        if print_obj.stageDate:
+            stage_date_only = print_obj.stageDate.split('T')[0] if 'T' in print_obj.stageDate else print_obj.stageDate
+            stage_info += f" ({stage_date_only})"
+        output += stage_info + "\n"
+    
+    # Summary
+    if print_obj.summary:
+        output += f"   {print_obj.summary}\n"
+    
+    return output
+
+
 # Validate API key before initializing server
 if not validate_api_key():
     logger.error("Server startup aborted due to authentication failure")
@@ -52,22 +95,8 @@ except Exception as e:
 @mcp.tool()
 def search_prints(query: str, limit: int = 10, status: str = "all") -> str:
     """
-    Search for legislative processes (druki sejmowe) by topic or keywords.
-    
-    Returns ONLY initiating prints that start legislative processes, not supplementary documents.
-    Uses AI semantic search when available, falls back to keyword search.
-    
-    Args:
-        query: Search query in Polish (e.g., 'podatki', 'obrona', 'energia')
-        limit: Max results (default: 10, max: 50)
-        status: 'all', 'active' (in progress), or 'finished' (published/withdrawn)
-    
-    Returns:
-        List with: print number, title, current stage, full summary, topics
-    
-    Examples:
-        search_prints("podatki", status="active") - active tax legislation
-        search_prints("obrona") - all defense-related processes
+    Search for legislative prints by keywords using semantic AI search.
+    Returns only initiating prints (process-starting documents).
     """
     try:
         limit = min(limit, settings.MAX_LIMIT)
@@ -85,17 +114,10 @@ def search_prints(query: str, limit: int = 10, status: str = "all") -> str:
         if not results:
             return f"No prints found for query: {query} (status: {status})"
         
-        # Format results
+        # Format results using helper function
         output = f"Found {len(results)} prints for '{query}' (status: {status}):\n\n"
         for i, print_obj in enumerate(results, 1):
-            output += f"{i}. Print {print_obj.number}\n"
-            output += f"   Title: {print_obj.title}\n"
-            if print_obj.currentStage:
-                output += f"   Stage: {print_obj.currentStage}\n"
-            if print_obj.summary:
-                output += f"   Summary: {print_obj.summary}\n"
-            if print_obj.topics:
-                output += f"   Topics: {', '.join(print_obj.topics)}\n"
+            output += format_print_output(print_obj, index=i)
             output += "\n"
         
         return output
@@ -107,23 +129,8 @@ def search_prints(query: str, limit: int = 10, status: str = "all") -> str:
 @mcp.tool()
 def explore_node(node_type: str, node_id: str, limit: int = 50) -> str:
     """
-    Discover all connections of any entity in the parliamentary database.
-    
-    Shows what's related to: MPs, prints, topics, processes, clubs, or committees.
-    Useful for understanding relationships and finding related information.
-    
-    Args:
-        node_type: 'Person', 'Print', 'Topic', 'Process', 'Club', or 'Committee'
-        node_id: Identifier (Person: ID number, Print/Process: number, Topic/Club: name, Committee: code)
-        limit: Max items per relationship type (default: 50)
-    
-    Returns:
-        All relationships grouped by type with sample connected entities
-    
-    Examples:
-        explore_node("Person", "12345") - MP's connections
-        explore_node("Topic", "Podatki") - all tax-related entities
-        explore_node("Club", "PiS") - party members and activities
+    Discover all connections for any entity (MPs, prints, topics, processes, clubs, committees).
+    Shows relationships grouped by type with connected entities.
     """
     try:
         logger.info(f"Exploring node: {node_type} with ID {node_id}")
@@ -175,22 +182,7 @@ def explore_node(node_type: str, node_id: str, limit: int = 50) -> str:
 def get_process_details(print_number: str) -> str:
     """
     Get complete information about a legislative process using any related print number.
-    
-    Returns everything about the process: all associated prints, legislative journey,
-    people involved, and organizations. Use this for deep analysis of legislation.
-    
-    Args:
-        print_number: Any print number from the process (e.g., '1234')
-    
-    Returns:
-        - Process number, title, and status (active/finished)
-        - All prints in the process with summaries
-        - Complete legislative stages timeline
-        - All people mentioned (subjects) across all prints
-        - All organizations involved
-        - All related topics
-    
-    Note: One process can have multiple prints (initiating + amendments)
+    Shows all prints, stages, people involved, organizations, and topics.
     """
     try:
         logger.info(f"Getting process details for print: {print_number}")
@@ -213,52 +205,45 @@ def get_process_details(print_number: str) -> str:
         
         # Show all prints in the process
         if details.prints:
-            output += f"Prints in Process ({len(details.prints)}):\n"
+            output += f"Prints ({len(details.prints)}):\n"
             for i, print_obj in enumerate(details.prints, 1):
-                output += f"{i}. Print {print_obj.number}\n"
-                output += f"   Title: {print_obj.title}\n"
+                output += f"\n{i}. Print {print_obj.number}\n"
+                output += f"   {print_obj.title}\n"
                 if print_obj.documentDate:
                     output += f"   Date: {print_obj.documentDate}\n"
                 if print_obj.summary:
-                    output += f"   Summary: {print_obj.summary[:200]}...\n"
-                output += "\n"
+                    output += f"   {print_obj.summary}\n"
+            output += "\n"
         
         # Show all stages
         if details.allStages:
-            output += f"Legislative Stages ({len(details.allStages)}):\n"
+            output += f"Stages ({len(details.allStages)}):\n"
             for i, stage in enumerate(details.allStages, 1):
                 output += f"{i}. {stage.stageName}"
                 if stage.date:
                     output += f" ({stage.date})"
-                if stage.type:
-                    output += f" - {stage.type}"
                 output += "\n"
             output += "\n"
         
         # Show all subjects
         if details.allSubjects:
-            output += f"Subjects (People Mentioned) ({len(details.allSubjects)}):\n"
-            for subject in details.allSubjects[:20]:  # Show first 20
-                output += f"  - {subject}\n"
-            if len(details.allSubjects) > 20:
-                output += f"  ... and {len(details.allSubjects) - 20} more\n"
+            output += f"People Mentioned ({len(details.allSubjects)}):\n"
+            output += f"  {', '.join(details.allSubjects[:10])}\n"
+            if len(details.allSubjects) > 10:
+                output += f"  ... and {len(details.allSubjects) - 10} more\n"
             output += "\n"
         
         # Show all organizations
         if details.allOrganizations:
-            output += f"Organizations Involved ({len(details.allOrganizations)}):\n"
-            for org in details.allOrganizations[:20]:  # Show first 20
-                output += f"  - {org}\n"
-            if len(details.allOrganizations) > 20:
-                output += f"  ... and {len(details.allOrganizations) - 20} more\n"
+            output += f"Organizations ({len(details.allOrganizations)}):\n"
+            output += f"  {', '.join(details.allOrganizations[:10])}\n"
+            if len(details.allOrganizations) > 10:
+                output += f"  ... and {len(details.allOrganizations) - 10} more\n"
             output += "\n"
         
         # Show all topics
         if details.allTopics:
-            output += f"Topics ({len(details.allTopics)}):\n"
-            for topic in details.allTopics:
-                output += f"  - {topic}\n"
-            output += "\n"
+            output += f"Topics: {', '.join(details.allTopics)}\n\n"
         
         return output
     except Exception as e:
@@ -269,18 +254,8 @@ def get_process_details(print_number: str) -> str:
 @mcp.tool()
 def get_process_status(process_number: str) -> str:
     """
-    Check if a legislative process is still in progress or completed.
-    
-    Analyzes legislative stages to determine current status.
-    Use when you need quick status check without full details.
-    
-    Args:
-        process_number: The process number
-    
-    Returns:
-        Status (active/finished/unknown), current stage, all stages with dates
-    
-    Note: Finished means published or withdrawn. Active means still being processed.
+    Check if a legislative process is active or finished.
+    Shows current status, latest stage, and all historical stages.
     """
     try:
         logger.info(f"Checking process status: {process_number}")
@@ -301,13 +276,11 @@ def get_process_status(process_number: str) -> str:
             output += f"Stage Date: {status.stageDate}\n"
         
         if status.allStages:
-            output += f"\nAll Stages ({len(status.allStages)}):\n"
+            output += f"\nStages ({len(status.allStages)}):\n"
             for stage in status.allStages:
-                output += f"  {stage.number or '?'}. {stage.stageName}"
+                output += f"  {stage.stageName}"
                 if stage.date:
                     output += f" ({stage.date})"
-                if stage.type:
-                    output += f" - {stage.type}"
                 output += "\n"
         
         return output
@@ -319,17 +292,8 @@ def get_process_status(process_number: str) -> str:
 @mcp.tool()
 def find_mp_by_name(name: str) -> str:
     """
-    Find members of parliament (MPs) by name or partial name.
-    
-    Searches across different Polish name forms (cases). Returns all matches.
-    
-    Args:
-        name: Full or partial name (e.g., 'Kowalski', 'Jan', 'Tusk')
-    
-    Returns:
-        List of MPs with: name, party (club), role, ID, active status
-    
-    Tip: Use returned ID with get_mp_activity() for detailed information
+    Find members of parliament by name or partial name.
+    Returns matching MPs with party, role, ID, and active status.
     """
     try:
         logger.info(f"Finding MP by name: {name}")
@@ -344,11 +308,7 @@ def find_mp_by_name(name: str) -> str:
             output += f"{i}. {person.name}"
             if person.club:
                 output += f" ({person.club})"
-            if person.role:
-                output += f"\n   Role: {person.role}"
-            if person.id:
-                output += f"\n   ID: {person.id}"
-            output += f"\n   Active: {'Yes' if person.active else 'No'}\n\n"
+            output += f" - ID: {person.id}\n"
         
         return output
     except Exception as e:
@@ -359,20 +319,8 @@ def find_mp_by_name(name: str) -> str:
 @mcp.tool()
 def get_mp_activity(person_id: int) -> str:
     """
-    Get complete legislative activity profile for an MP.
-    
-    Shows what the MP has done: authored legislation, speeches, committees, 
-    and prints they're mentioned in.
-    
-    Args:
-        person_id: MP's ID number (get from find_mp_by_name)
-    
-    Returns:
-        - Basic info (name, party, role)
-        - Authored prints with topics
-        - Prints where they're mentioned (subject)
-        - Speech count
-        - Committee memberships
+    Get legislative activity for an MP.
+    Shows authored prints, prints they're mentioned in, speeches, and committees.
     """
     try:
         logger.info(f"Getting activity for person ID: {person_id}")
@@ -387,27 +335,27 @@ def get_mp_activity(person_id: int) -> str:
         
         if activity.person.club:
             output += f"Club: {activity.person.club}\n"
-        if activity.person.role:
-            output += f"Role: {activity.person.role}\n"
         
-        output += f"\nSpeeches: {activity.speechCount}\n"
+        output += f"Speeches: {activity.speechCount}\n"
         
         if activity.committees:
-            output += f"\nCommittees ({len(activity.committees)}):\n"
-            for committee in activity.committees:
-                output += f"  - {committee}\n"
+            output += f"Committees: {', '.join(activity.committees[:3])}\n"
+            if len(activity.committees) > 3:
+                output += f"... and {len(activity.committees) - 3} more\n"
         
         if activity.authoredPrints:
             output += f"\nAuthored Prints ({len(activity.authoredPrints)}):\n"
-            for print_obj in activity.authoredPrints[:5]:  # Show first 5
+            for print_obj in activity.authoredPrints[:3]:
                 output += f"  - Print {print_obj.number}: {print_obj.title}\n"
-                if print_obj.topics:
-                    output += f"    Topics: {', '.join(print_obj.topics)}\n"
+            if len(activity.authoredPrints) > 3:
+                output += f"  ... and {len(activity.authoredPrints) - 3} more\n"
         
         if activity.subjectPrints:
             output += f"\nPrints About Them ({len(activity.subjectPrints)}):\n"
-            for print_obj in activity.subjectPrints[:5]:  # Show first 5
+            for print_obj in activity.subjectPrints[:3]:
                 output += f"  - Print {print_obj.number}: {print_obj.title}\n"
+            if len(activity.subjectPrints) > 3:
+                output += f"  ... and {len(activity.subjectPrints) - 3} more\n"
         
         return output
     except Exception as e:
@@ -419,63 +367,10 @@ def get_mp_activity(person_id: int) -> str:
 
 
 @mcp.tool()
-def get_club_statistics(club_name: str) -> str:
-    """
-    Get comprehensive statistics for a parliamentary party/club.
-    
-    Analyzes party's overall legislative activity, size, and engagement metrics.
-    
-    Args:
-        club_name: Party name (e.g., 'PiS', 'Platforma Obywatelska', 'Lewica')
-    
-    Returns:
-        - Membership (total and active MPs)
-        - Legislative output (total/active/finished prints)
-        - Engagement (votes cast, speeches, committee positions)
-    
-    Tip: Use list_clubs() to see all available party names
-    """
-    try:
-        logger.info(f"Getting statistics for club: {club_name}")
-        
-        stats = query_service.get_club_statistics(club_name)
-        
-        if not stats:
-            return f"Club '{club_name}' not found"
-        
-        output = f"Club Statistics - {stats.name}\n"
-        output += "=" * 50 + "\n\n"
-        
-        output += f"Members: {stats.memberCount}\n"
-        output += f"Active Members: {stats.activeMembers}\n"
-        
-        output += f"\nLegislative Activity:\n"
-        output += f"  Total Authored Prints: {stats.authoredPrints}\n"
-        output += f"  Active Prints: {stats.activePrints}\n"
-        output += f"  Finished Prints: {stats.finishedPrints}\n"
-        
-        output += f"\nParliamentary Engagement:\n"
-        output += f"  Votes Cast: {stats.totalVotes}\n"
-        output += f"  Speeches: {stats.speechCount}\n"
-        output += f"  Committee Positions: {stats.committeePositions}\n"
-        
-        return output
-    except Exception as e:
-        logger.error(f"Error in get_club_statistics: {e}")
-        return f"Error getting club statistics: {str(e)}"
-
-
-@mcp.tool()
 def list_clubs() -> str:
     """
     List all parliamentary parties/clubs with membership information.
-    
-    Shows all political groups in parliament, ordered by size (largest first).
-    
-    Returns:
-        All clubs with: name, total members, active members
-    
-    Use: Get party names for get_club_statistics() or to understand parliament composition
+    Ordered by size (largest first).
     """
     try:
         logger.info("Listing all parliamentary clubs")
@@ -489,11 +384,12 @@ def list_clubs() -> str:
         output += "=" * 50 + "\n\n"
         
         for i, club in enumerate(clubs, 1):
-            output += f"{i}. {club.name}\n"
-            output += f"   Members: {club.memberCount}"
+            output += f"{i}. {club.name} - {club.memberCount} members"
             if club.activeMembers > 0:
-                output += f" (Active: {club.activeMembers})"
-            output += "\n\n"
+                output += f" ({club.activeMembers} active)"
+            output += "\n"
+        
+        return output
         
         return output
     except Exception as e:
@@ -501,6 +397,53 @@ def list_clubs() -> str:
         return f"Error listing clubs: {str(e)}"
 
 
+@mcp.tool()
+def search_by_topic_or_organization(
+    query: str, 
+    limit: int = 10,
+    status: str = "all",
+    only_initiating: bool = True
+) -> str:
+    """
+    Find prints related to a specific topic or organization by name.
+    Searches both topics and organizations simultaneously.
+    """
+    try:
+        # Enforce max limit of 20
+        limit = min(limit, 20)
+        
+        # Validate that query is provided
+        if not query:
+            return "Error: 'query' parameter must be provided"
+        
+        # Validate status parameter
+        if status not in ["all", "active", "finished"]:
+            return f"Invalid status '{status}'. Must be 'all', 'active', or 'finished'"
+        
+        status_filter = None if status == "all" else status
+        
+        logger.info(f"Searching prints by name='{query}' (status: {status}, limit: {limit}, only_initiating: {only_initiating})")
+        
+        results = query_service.search_prints_by_name(
+            query=query,
+            limit=limit,
+            status_filter=status_filter,
+            only_process_print=only_initiating
+        )
+        
+        if not results:
+            return f"No prints found for '{query}' (status: {status})"
+        
+        # Format results using helper function
+        output = f"Found {len(results)} prints for '{query}' (status: {status}):\n\n"
+        for i, print_obj in enumerate(results, 1):
+            output += format_print_output(print_obj, index=i)
+            output += "\n"
+        
+        return output
+    except Exception as e:
+        logger.error(f"Error in search_by_topic_or_organization: {e}")
+        return f"Error searching prints: {str(e)}"
 
 
 

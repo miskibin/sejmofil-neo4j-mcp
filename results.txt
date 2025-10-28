@@ -1,0 +1,306 @@
+================================================================================
+MCP TOOLS RESULTS - Generated on 2025-10-28 17:15:51
+================================================================================
+
+
+================================================================================
+1. search_prints(query='podatki', limit=3, status='all')
+================================================================================
+
+Found 3 prints:
+
+1. Print 674
+   Rządowy projekt ustawy o opodatkowaniu wyrównawczym jednostek składowych grup międzynarodowych i krajowych.
+   Date: 2024-09-25
+   Stage: Publikacja w Dzienniku Ustaw (2025-01-01)
+   Projekt ustawy reguluje **opodatkowanie wyrównawcze** jednostek składowych grup międzynarodowych i krajowych, wdrażając dyrektywę UE w sprawie **globalnego minimalnego poziomu opodatkowania**.  Ustawa wprowadza **trzy rodzaje podatków wyrównawczych**: globalny, krajowy i podatek od niedostatecznie opodatkowanych zysków.  Rząd wnosi o **skrócenie procedury legislacyjnej** ze względu na pilną potrzebę implementacji dyrektywy UE, a Minister Finansów został upoważniony do reprezentowania stanowiska rządu w parlamencie.  Projekt został uznany za zgodny z prawem Unii Europejskiej.
+
+2. Print 1320
+   Poselski projekt ustawy o zmianie ustawy o podatku od niektórych instytucji finansowych.
+   Date: 2025-04-28
+   Stage: Wpłynęło stanowisko rządu (2025-09-05)
+   Projekt ustawy zakłada **zmianę ustawy o podatku od niektórych instytucji finansowych**, mającą na celu obniżenie wysokich *marż odsetkowych* kredytów hipotecznych w Polsce, które są jednymi z najwyższych w UE. Wprowadza się **zwolnienie podatkowe** dla kredytów z marżą na poziomie 1% lub niżej, jednocześnie **progresywnie podwyższając podatek** dla kredytów o wyższych marżach, aby zachęcić banki do ich obniżenia. Oczekuje się, że zmiany te doprowadzą do *redukcji miesięcznych rat kredytowych* (np. o ok. 635 zł) oraz **zwiększenia zdolności kredytowej** dla około 690 tysięcy gospodarstw domowych, ułatwiając dostęp do własnego mieszkania. Ma to również **ożywić rynek mieszkaniowy i sektor budowlany**, generując pozytywne skutki gospodarcze i finansowe dla budżetu państwa poprzez wzrost wpływów z VAT, CIT i PIT.
+
+3. Print 1731
+   Poselski projekt ustawy o zmianie ustawy o podatku dochodowym od osób fizycznych.
+   Date: 2025-09-10
+   Stage: Skierowano do I czytania na posiedzeniu Sejmu (2025-10-14)
+   Projekt ustawy zakłada **zwolnienie z podatku dochodowego od osób fizycznych** świadczenia ratowniczego, przysługującego strażakom Ochotniczej Straży Pożarnej z tytułu wysługi lat. Obecnie świadczenie to, będące symbolicznym podziękowaniem za wieloletnią, bezinteresowną służbę, jest opodatkowane, co *pomniejsza jego realną wartość* i budzi poczucie niesprawiedliwości. Proponowana zmiana ma na celu wypłatę dodatku w pełnej wysokości, co stanowi **pełne uznanie państwa** dla poświęcenia ochotników i usprawnienie systemu administracyjnego. Oczekuje się, że wprowadzenie tej regulacji **zwiększy prestiż** Ochotniczych Straży Pożarnych, zachęcając młodsze pokolenia do wstępowania w ich szeregi. Zmiana ta, choć o *marginalnym wpływie na budżet państwa*, ma ogromne znaczenie dla beneficjentów i odpowiada na oczekiwania środowiska strażaków ochotników.
+
+
+================================================================================
+2. search_prints(query='obrona', limit=3, status='active')
+================================================================================
+
+Found 3 active prints:
+
+1. Print 1188
+   Poselski projekt ustawy o zmianie ustawy o środkach przymusu bezpośredniego i broni palnej oraz ustawy o obronie Ojczyzny.
+   Date: 2025-03-20
+   Stage: Skierowano do I czytania w komisjach (2025-05-06)
+   Projekt ustawy ma na celu **naprawienie stanu prawnego** po poprzedniej autopoprawce, która skomplikowała kwestię użycia środków przymusu bezpośredniego i broni palnej przez służby. Proponowane zmiany **zwiększają uprawnienia** funkcjonariuszy Policji i Straży Granicznej oraz żołnierzy do użycia broni w obronie *nienaruszalności granicy państwowej*, usuwając kazuistyczne zapisy. Dodatkowo, **zniesiony zostaje obowiązek udzielania pierwszej pomocy** w przypadku zranienia osoby, jeśli wymagałoby to przekroczenia granicy. Wprowadzono również *zamknięty katalog* sytuacji, w których operacje wojskowe mogą być prowadzone w czasie pokoju, koncentrując się na **bezpośrednich zagrożeniach granicy, infrastruktury krytycznej lub bezpieczeństwa ludzi i mienia**. Ma to zapewnić **klarowne zasady działania** i zwiększyć bezpieczeństwo.
+
+2. Print 203
+   Poselski projekt uchwały w sprawie obrony polskich rolników.
+   Date: 2024-02-20
+   Stage: I czytanie w komisjach (2024-03-08)
+   Dokument przedstawia projekt uchwały w sprawie obrony **polskich rolników** przed negatywnymi skutkami polityki Unii Europejskiej i napływu towarów z Ukrainy.  Posłowie podkreślają **zagrożenie dla jednolitości rynku unijnego** i wzywają rząd do **natychmiastowego wprowadzenia bezterminowego zakazu przywozu produktów rolno-spożywczych z Ukrainy**.  Sejm apeluje również o wynegocjowanie z Komisją Europejską **skutecznych mechanizmów celnych chroniących polskich rolników** i rozszerzenie embarga na produkty z Ukrainy, niezależnie od kraju pochodzenia w Unii Europejskiej.  *Celem jest ochrona polskiego rolnictwa i bezpieczeństwa żywnościowego*.
+
+3. Print 867
+   Poselski projekt ustawy o zmianie ustawy o broni i amunicji.
+   Date: 2024-11-06
+   Stage: I czytanie na posiedzeniu Sejmu (2025-01-09)
+   Projekt ustawy ma na celu **zmianę ustawy o broni i amunicji**, wprowadzając **bardziej rygorystyczne zasady dotyczące badań lekarskich i psychologicznych** dla posiadaczy broni.  Zmiany dotyczą **zwiększenia częstotliwości badań po 70. roku życia** oraz **rozszerzenia obowiązku na myśliwych**.  Celem jest **zwiększenie bezpieczeństwa publicznego** poprzez ograniczenie ryzyka niekontrolowanego użycia broni.
+
+
+================================================================================
+3. get_process_details(print_number='1441')
+================================================================================
+
+Process 1441
+Title: Rządowy projekt ustawy o zmianie ustawy o podatku dochodowym od osób prawnych
+Status: active
+Current Stage: Uchwalono
+
+Prints in this process (3):
+
+1. Print 1441
+   Rządowy projekt ustawy o zmianie ustawy o podatku dochodowym od osób prawnych.
+   Date: 2025-07-03
+   Niniejszy projekt ustawy ma na celu **uproszczenie systemu podatkowego** i **likwidację nadmiernych obciążeń** administracyjnych dla spółek holdingowych. Kluczową zmianą jest **zniesienie obowiązku składania oświadczenia** o zamiarze skorzystania ze zwolnienia z podatku CIT od dochodów ze zbycia udziałów (akcji). Ma to na celu zmniejszenie *obowiązków sprawozdawczych* oraz ułatwienie korzystania z istniejących zwolnień podatkowych w ramach reżimu holdingowego. Zmiana ta stanowi odpowiedź na postulaty zgłaszane przez podatników i realizuje zobowiązania rządowego Zespołu Deregulacyjnego. Ustawa wejdzie w życie z dniem następującym po dniu ogłoszenia, a jej przepisy znajdą zastosowanie do odpłatnego zbycia udziałów (akcji) dokonanego od tego dnia.
+
+2. Print 1620
+   Sprawozdanie Komisji do Spraw Deregulacji oraz Komisji Finansów Publicznych o rządowym projekcie ustawy o zmianie ustawy o podatku dochodowym od osób prawnych.
+   Date: 2025-08-05
+   Niniejsze sprawozdanie, sporządzone przez Komisję do Spraw Deregulacji oraz Komisję Finansów Publicznych, dotyczy **rządowego projektu ustawy** o zmianie ustawy o podatku dochodowym od osób prawnych (druk nr 1441). Sejm skierował projekt do rozpatrzenia przez wspomniane komisje w dniu 22 lipca 2025 r. Po szczegółowym rozpatrzeniu na posiedzeniu w dniu 5 sierpnia 2025 r., *komisje podjęły decyzję*. Przedstawiły Wysokiemu Sejmowi **rekomendację** uchwalenia wspomnianego projektu ustawy. Kluczowym **wnioskiem** jest przyjęcie projektu *bez wprowadzania jakichkolwiek poprawek*, co świadczy o pełnym poparciu dla jego pierwotnej formy.
+
+3. Print 1620-A
+   Dodatkowe sprawozdanie Komisji do Spraw Deregulacji oraz Komisji Finansów Publicznych o rządowym projekcie ustawy o zmianie ustawy o podatku dochodowym od osób prawnych.
+   Date: 2025-09-11
+   Niniejsze **dodatkowe sprawozdanie** Komisji do Spraw Deregulacji oraz Komisji Finansów Publicznych odnosi się do rządowego projektu ustawy o zmianie ustawy o podatku dochodowym od osób prawnych. Sejm ponownie skierował projekt do komisji w celu rozpatrzenia **poprawki** zgłoszonej w drugim czytaniu. Komisje, po przeanalizowaniu propozycji, **wniosły o jej odrzucenie**. Poprawka miała na celu zmianę brzmienia art. 1 projektu ustawy, w tym modyfikację przepisów dotyczących *warunków stosowania zwolnień* z podatku od dywidend oraz *dochodów osiąganych przez spółki holdingowe* ze zbycia udziałów.
+
+
+All Stages (42):
+  - Uchwalono ()
+  - Uchwalono ()
+  - Uchwalono ()
+  - Uchwalono ()
+  - Prezydent podpisał ustawę (2025-10-15)
+  - Ustawę przekazano Prezydentowi do podpisu (2025-09-26)
+  - Stanowisko Senatu (2025-09-24)
+  - Stanowisko Senatu (2025-09-24)
+  - III czytanie na posiedzeniu Sejmu (2025-09-12)
+  - III czytanie na posiedzeniu Sejmu (2025-09-12)
+  - III czytanie na posiedzeniu Sejmu (2025-09-12)
+  - III czytanie na posiedzeniu Sejmu (2025-09-12)
+  - Praca w komisjach po II czytaniu (2025-09-11)
+  - Praca w komisjach po II czytaniu (2025-09-11)
+  - Praca w komisjach po II czytaniu (2025-09-11)
+  - Praca w komisjach po II czytaniu (2025-09-11)
+  - Praca w komisjach po II czytaniu (2025-09-11)
+  - II czytanie na posiedzeniu Sejmu (2025-09-10)
+  - II czytanie na posiedzeniu Sejmu (2025-09-10)
+  - II czytanie na posiedzeniu Sejmu (2025-09-10)
+  - II czytanie na posiedzeniu Sejmu (2025-09-10)
+  - II czytanie na posiedzeniu Sejmu (2025-09-10)
+  - Praca w komisjach po I czytaniu (2025-08-05)
+  - Praca w komisjach po I czytaniu (2025-08-05)
+  - Praca w komisjach po I czytaniu (2025-08-05)
+  - Praca w komisjach po I czytaniu (2025-08-05)
+  - Praca w komisjach po I czytaniu (2025-08-05)
+  - I czytanie na posiedzeniu Sejmu (2025-07-22)
+  - I czytanie na posiedzeniu Sejmu (2025-07-22)
+  - I czytanie na posiedzeniu Sejmu (2025-07-22)
+  - I czytanie na posiedzeniu Sejmu (2025-07-22)
+  - I czytanie na posiedzeniu Sejmu (2025-07-22)
+  - Skierowano do I czytania na posiedzeniu Sejmu (2025-07-07)
+  - Skierowano do I czytania na posiedzeniu Sejmu (2025-07-07)
+  - Skierowano do I czytania na posiedzeniu Sejmu (2025-07-07)
+  - Skierowano do I czytania na posiedzeniu Sejmu (2025-07-07)
+  - Skierowano do I czytania na posiedzeniu Sejmu (2025-07-07)
+  - Projekt wpłynął do Sejmu (2025-07-03)
+  - Projekt wpłynął do Sejmu (2025-07-03)
+  - Projekt wpłynął do Sejmu (2025-07-03)
+  - Projekt wpłynął do Sejmu (2025-07-03)
+  - Projekt wpłynął do Sejmu (2025-07-03)
+
+================================================================================
+4. get_process_status(process_number='X0-P-1441')
+================================================================================
+
+================================================================================
+5. find_mp_by_name(name='Tusk')
+================================================================================
+
+Found 1 MPs:
+
+1. Donald Tusk (KO) - ID: 400
+
+================================================================================
+6. get_mp_activity(person_id=400)
+================================================================================
+
+Legislative Activity - Donald Tusk
+Club: KO
+Speeches: 19
+
+Authored Prints (10):
+  - Print 1863: Rządowy projekt ustawy zmieniającej ustawę o zmianie ustawy - Kodeks karny oraz niektórych innych ustaw oraz o zmianie niektórych innych ustaw.
+  - Print 1862: Rządowy projekt ustawy o zmianie niektórych ustaw w celu usprawnienia działań Sił Zbrojnych Rzeczypospolitej Polskiej na wypadek zagrożenia bezpieczeństwa państwa na polskich obszarach morskich oraz zapewnienia bezpieczeństwa na Morzu Bałtyckim.
+  - Print 1861: Rządowy projekt ustawy o zmianie ustawy o Centralnym Azylu dla Zwierząt.
+
+================================================================================
+7. list_clubs()
+================================================================================
+
+Parliamentary Clubs (11 total):
+
+1. PiS - 202 members (188 active)
+2. KO - 175 members (157 active)
+3. PSL-TD - 33 members (32 active)
+4. Polska2050 - 31 members (31 active)
+5. Lewica - 23 members (21 active)
+6. Konfederacja - 18 members (16 active)
+7. Razem - 5 members (5 active)
+8. Republikanie - 4 members (4 active)
+9. Konfederacja_KP - 3 members (3 active)
+10. niez. - 3 members (3 active)
+11. Polska2050-TD - 1 members (0 active)
+
+================================================================================
+8. list_clubs()
+================================================================================
+
+Parliamentary Clubs (11 total):
+
+1. PiS - 202 members (188 active)
+2. KO - 175 members (157 active)
+3. PSL-TD - 33 members (32 active)
+4. Polska2050 - 31 members (31 active)
+5. Lewica - 23 members (21 active)
+6. Konfederacja - 18 members (16 active)
+7. Razem - 5 members (5 active)
+8. Republikanie - 4 members (4 active)
+9. Konfederacja_KP - 3 members (3 active)
+10. niez. - 3 members (3 active)
+11. Polska2050-TD - 1 members (0 active)
+
+================================================================================
+8. search_by_topic_or_organization(query='Podatki', limit=3)
+================================================================================
+
+Found 3 prints:
+
+1. Print 1729
+   Rządowy projekt ustawy o zmianie ustawy o doradztwie podatkowym oraz ustawy - Prawo o postępowaniu przed sądami administracyjnymi.
+   Date: 2025-09-17
+   Stage: Praca w komisjach po I czytaniu (2025-10-16)
+   Ten projekt ustawy wprowadza znaczące zmiany w **ustawie o doradztwie podatkowym** oraz **Prawie o postępowaniu przed sądami administracyjnymi**. Rozszerza on **zakres czynności doradztwa podatkowego** o nowe obowiązki informacyjne, sprawozdawcze oraz doradztwo w zakresie przepisów celnych i egzekucji administracyjnej. Wprowadza *nowe warunki wpisu na listę doradców podatkowych*, np. dla osób z doświadczeniem w Komisji Egzaminacyjnej lub posiadających stopień doktora habilitowanego w odpowiednich dziedzinach, a także usprawnia prowadzenie **elektronicznej listy doradców**. Projekt ma na celu także **usprawnienie egzaminu na doradcę podatkowego**, poszerzając jego zakres tematyczny o *opłaty podlegające Ordynacji podatkowej* oraz *wymianę informacji podatkowych*, a także upraszcza procedury aplikacyjne, umożliwiając m.in. składanie wniosków elektronicznie. Oczekuje się, że zmiany te **zmniejszą obciążenia administracyjne dla kandydatów** i przyczynią się do *wzrostu liczby wykwalifikowanych doradców podatkowych*.
+
+2. Print 1441
+   Rządowy projekt ustawy o zmianie ustawy o podatku dochodowym od osób prawnych.
+   Date: 2025-07-03
+   Stage: Uchwalono
+   Niniejszy projekt ustawy ma na celu **uproszczenie systemu podatkowego** i **likwidację nadmiernych obciążeń** administracyjnych dla spółek holdingowych. Kluczową zmianą jest **zniesienie obowiązku składania oświadczenia** o zamiarze skorzystania ze zwolnienia z podatku CIT od dochodów ze zbycia udziałów (akcji). Ma to na celu zmniejszenie *obowiązków sprawozdawczych* oraz ułatwienie korzystania z istniejących zwolnień podatkowych w ramach reżimu holdingowego. Zmiana ta stanowi odpowiedź na postulaty zgłaszane przez podatników i realizuje zobowiązania rządowego Zespołu Deregulacyjnego. Ustawa wejdzie w życie z dniem następującym po dniu ogłoszenia, a jej przepisy znajdą zastosowanie do odpłatnego zbycia udziałów (akcji) dokonanego od tego dnia.
+
+3. Print 1439
+   Rządowy projekt ustawy o zmianie ustawy - Ordynacja podatkowa.
+   Date: 2025-07-03
+   Stage: Uchwalono
+   Projekt ustawy wprowadza zmiany do **Ordynacji podatkowej**, mające na celu **zmniejszenie obciążeń podatników** oraz zwiększenie efektywności działania organów. Kluczową zmianą jest zasada **nienaliczania odsetek za zwłokę**, gdy kontrola podatkowa lub celno-skarbowa trwa *dłużej niż 6 miesięcy* od dnia jej wszczęcia, za okres od dnia następnego po upływie tego terminu do jej zakończenia. Celem jest *mobilizacja organów* do szybszego przeprowadzania kontroli i uwolnienie podatników od finansowych konsekwencji przewlekłości. Do 6-miesięcznego terminu nie wlicza się jednak -*okresów zawieszenia kontroli* (z wyjątkiem określonych sytuacji), -*terminów przewidzianych dla określonych czynności* oraz -*opóźnień spowodowanych z winy strony* lub *przyczyn niezależnych od organu*. Nowe regulacje mają również zastosowanie do kontroli wszczętych przed wejściem ustawy w życie.
+
+
+================================================================================
+9. search_by_topic_or_organization(query='Ministerstwo Finansów', limit=3)
+================================================================================
+
+Found 3 prints:
+
+1. Print 1789
+   Lista kandydatów na członka Rady Fiskalnej wskazanych przez stronę pracodawców w Radzie Dialogu Społecznego.
+   Date: 2025-10-06
+   Stage: Skierowano do I czytania w komisjach (2025-10-06)
+   Dokument przedstawia listę kandydatów na członków **Rady Fiskalnej**, wskazanych przez stronę pracodawców w **Radzie Dialogu Społecznego**.
+- Kandydaci to **Marcin Mrowiec** i **Jacek Tomkiewicz**, z szczegółowymi życiorysami zawodowymi podkreślającymi doświadczenie w **makroekonomii** i **finansach publicznych**.
+- **Marcin Mrowiec** ma ponad 20 lat doświadczenia jako ekonomista, w tym jako główny ekonomista w Banku Pekao SA i Grant Thornton Polska, z doktoratem z ekonomii.
+- **Jacek Tomkiewicz** jest profesorem i dziekanem w Akademii Leona Koźmińskiego, z habilitacją w ekonomii, publikacjami naukowymi oraz doświadczeniem w Ministerstwie Finansów.
+- Obaj kandydaci spełniają wymogi ustawowe, w tym co najmniej 10 lat doświadczenia w dziedzinach związanych z finansami publicznymi i makroekonomią.
+
+2. Print 1788
+   Lista kandydatów na członka Rady Fiskalnej wskazanych przez stronę pracowników w Radzie Dialogu Społecznego.
+   Date: 2025-10-06
+   Stage: Skierowano do I czytania w komisjach (2025-10-06)
+   Dokument przedstawia listę kandydatów na członków **Rady Fiskalnej** wskazanych przez stronę pracowników w **Radzie Dialogu Społecznego**. 
+- **Kandydaci**: Jakub Sawulski i Marcin Wroński, z szczegółowymi **curricula vitae** obejmującymi doświadczenie zawodowe, karierę akademicką i publikacje naukowe. 
+- **Jakub Sawulski**: Ekspert w finansach publicznych, z rolami w Ministerstwie Finansów, Fundacji Instrat i SGH, specjalizujący się w polityce fiskalnej i nierównościach. 
+- **Marcin Wroński**: Doktor ekonomii, z doświadczeniem w SGH, Banku Światowym i KNF, skupiony na nierównościach majątkowych i polityce emerytalnej. 
+- Dokument wydrukowany z polecenia **Marszałka Sejmu** w X kadencji.
+
+3. Print 1785
+   Lista kandydatów na członka Rady Fiskalnej wskazanych przez Prezydenta Rzeczypospolitej Polskiej.
+   Date: 2025-10-06
+   Stage: Skierowano do I czytania w komisjach (2025-10-06)
+   Dokument przedstawia listę kandydatów na członków **Rady Fiskalnej** wskazanych przez **Prezydenta Rzeczypospolitej Polskiej** w ramach druku sejmowego nr 1785 z dnia **6 października 2025 r.**.
+- **Kandydat 1**: **Barbara Brodowska-Mączka** z **25-letnim doświadczeniem** w finansach publicznych, w tym analiza budżetów, udział w legislacji (np. ustawy okołobudżetowe, specustawy COVID-19) i stanowiska kierownicze w **Ministerstwie Finansów** oraz **Kancelarii Prezydenta RP**.
+- **Kandydat 2**: **Prof. dr hab. Łukasz Hardt**, profesor na **Uniwersytecie Warszawskim**, były członek **Rady Polityki Pieniężnej** (2016-2022), z ekspertyzą w **makroekonomii**, polityce fiskalnej i monetarnej, w tym publikacje na temat reguł fiskalnych i niezależnych rad fiskalnych.
+- **Cel dokumentu**: Przedstawienie kwalifikacji kandydatów do obsadzenia stanowisk w **Radzie Fiskalnej**.
+
+
+================================================================================
+10. search_by_topic_or_organization(query='Polityka pieniężna', limit=3)
+================================================================================
+
+Found 3 prints:
+
+1. Print 1321
+   Sprawozdanie z działalności Narodowego Banku Polskiego w 2024 roku.
+   Date: 2025-05-28
+   Stage: Rozpatrywanie na forum Sejmu
+   W 2024 roku Narodowy Bank Polski kontynuował realizację polityki pieniężnej, której głównym celem było utrzymanie **stabilności cen** na poziomie 2,5% z przedziałem odchyleń ±1 p.p., wspierając jednocześnie *zrównoważony wzrost gospodarczy* i stabilność systemu finansowego. Gospodarka polska odnotowała **przyspieszenie wzrostu PKB do 2,9%**, głównie dzięki popytowi krajowemu, jednak polityka fiskalna uległa poluzowaniu, a deficyt sektora finansów publicznych wzrósł. Inflacja CPI, po spadku do celu NBP w I połowie roku, **wzrosła powyżej celu w II połowie 2024 roku** (osiągając 4,8% r/r w IV kw.) wskutek odmrożenia cen energii i podwyżek VAT. W obliczu tych uwarunkowań **Rada Polityki Pieniężnej utrzymywała stopy procentowe NBP na niezmienionym poziomie**, w tym stopę referencyjną na 5,75%, dążąc do *trwałego powrotu inflacji do celu* w średnim okresie. NBP również aktywnie zarządzał **rezerwami dewizowymi** (zwiększając zasoby złota o 89,5 tony), realizował zadania związane z **systemem płatniczym**, **obsługą Skarbu Państwa** oraz prowadził **działalność edukacyjną** i analityczno-badawczą.
+
+2. Print 1322
+   Sprawozdanie z wykonania założeń polityki pieniężnej na rok 2024.
+   Date: 2025-05-28
+   Stage: Skierowano do I czytania w komisjach (2025-06-02)
+   Rada Polityki Pieniężnej przedstawiła sprawozdanie z realizacji **założeń polityki pieniężnej na rok 2024**, której głównym celem było utrzymanie **stabilności cen** przy wspieraniu wzrostu gospodarczego i stabilności systemu finansowego. W 2024 roku Polska doświadczyła **wyraźnego ożywienia gospodarczego** i historycznie *niskiej stopy bezrobocia*, co wraz ze znacznym wzrostem płac, przyczyniło się do *silnej dynamiki popytu krajowego*. Jednocześnie nastąpiło **istotne poluzowanie polityki fiskalnej**, a inflacja CPI, która w pierwszej połowie roku osiągnęła cel NBP, **wzrosła powyżej celu** w drugiej połowie roku w wyniku odmrożenia cen energii i zmian podatkowych. W odpowiedzi na te uwarunkowania, Rada **utrzymała stopy procentowe NBP na niezmienionym poziomie**, w tym stopę referencyjną na poziomie **5,75%**, dążąc do *trwałego powrotu inflacji do celu* w średnim okresie.
+
+3. Print 691
+   Założenia polityki pieniężnej na rok 2025.
+   Date: 2024-09-19
+   Stage: Skierowano do I czytania w komisjach (2024-10-01)
+   Rada Polityki Pieniężnej (RPP) przedstawiła **Założenia polityki pieniężnej na rok 2025**, utrzymując dotychczasową strategię. **Głównym celem** pozostaje zapewnienie **stabilności cen** na poziomie 2,5% z dopuszczalnym odchyleniem +/- 1 punkt procentowy.  RPP będzie nadal korzystać z **stóp procentowych NBP** jako podstawowego instrumentu, przy elastycznym podejściu do interwencji na rynku walutowym.  Strategia uwzględnia **globalne szoki gospodarcze** ostatnich lat, takie jak pandemia COVID-19 i wojna w Ukrainie, oraz dąży do **zrównoważonego wzrostu gospodarczego** i **stabilności systemu finansowego**.
+
+
+================================================================================
+11. explore_node(node_type='Person', node_id='400', limit=5)
+================================================================================
+
+Neighbors of Person '400':
+
+[AUTHORED] → Print (Total: 365)
+  - 320: Rządowy projekt ustawy o zmianie ustawy o zasadach...
+  - 1863: Rządowy projekt ustawy zmieniającej ustawę o zmian...
+  - 1862: Rządowy projekt ustawy o zmianie niektórych ustaw ...
+[SUBJECT] → Print (Total: 49)
+  - 95: Poselski wniosek w sprawie wyboru pana Donalda Fra...
+  - 1855: Rządowy projekt ustawy o zmianie ustawy o systemie...
+  - 1819: Sprawozdanie Rady Ministrów z realizacji ustawy o ...
+[COMMENTS] → Print (Total: 23)
+  - 32: Obywatelski projekt ustawy o zmianie ustawy o emer...
+  - 1320: Poselski projekt ustawy o zmianie ustawy o podatku...
+  - 1273: Poselski projekt ustawy o zmianie ustawy o obywate...
+
+================================================================================
+12. explore_node(node_type='Topic', node_id='Podatki', limit=5)
+================================================================================
+
+Neighbors of Topic 'Podatki':
+
+[REFERS_TO] → Print (Total: 44)
+  - Print 1729: Rządowy projekt ustawy o zmianie ustawy o doradztw...
+  - Print 1495: Uchwała Senatu w sprawie ustawy o zmianie ustawy o...
+  - Print 1441: Rządowy projekt ustawy o zmianie ustawy o podatku ...
+
+================================================================================
+END OF RESULTS
+================================================================================

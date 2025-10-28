@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     
     # Query limits
     DEFAULT_LIMIT: int = 10
-    MAX_LIMIT: int = 50
+    MAX_LIMIT: int = 20
     
     # Similarity thresholds
     VECTOR_SIMILARITY_THRESHOLD: float = 0.5
